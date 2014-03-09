@@ -77,6 +77,10 @@ module.exports = (function()
 			  	intentFilter.category = [];
 			  	intentFilter.data = [];
 		        var intent_filter_tag = component.childNodes()[i];
+		        //console.log("pri: " + intent_filter_tag.attr("priority"));
+		        if(intent_filter_tag.attr("priority") != null)
+		        	intentFilter.priority = intent_filter_tag.attr("priority").value();
+
 		        for (var j = 0; j < intent_filter_tag.childNodes().length; j++){
 		          //if(intent_filter_tag.childNodes()[j].name() != 'text'){
 		          if(intent_filter_tag.childNodes()[j].name() == 'action'){

@@ -158,9 +158,10 @@ app.get('/', function(req,res){
 });
 
 app.post('/createGraph', function(req,res){
-	dbHelper.cleanDb();
+	//dbHelper.cleanDb();
 	configParser = require("./configParser.js");
-	configParser.parseXML("config.xml");
+	//configParser.parseXML("config.xml");
+	configParser.createImplicitIntentRel();
 	//res.redirect('/');
 });
 

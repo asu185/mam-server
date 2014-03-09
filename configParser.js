@@ -52,7 +52,7 @@ module.exports = (function()
 			  }
 
 			  //* match implicit intent here
-			  //that.matchImplicitIntent();
+			  //that.createImplicitIntentRel();
 
 
 			  //return that.appsInfo;
@@ -150,8 +150,15 @@ module.exports = (function()
 		createIntent:function(intent, isExplicit){
 			console.log(intent);
 			that = this;
+
+			var type = "";
+			if(isExplicit)
+				type = "Explicit";
+			else
+				type = "Implicit";
+
 			var createIntentCypher = [
-			  "CREATE (n:Intent)",
+			  "CREATE (n:Intent:" + type + ")",
 			  //"CREATE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}})",
 			  "SET n = { props }",
 			  "RETURN n"
@@ -192,37 +199,27 @@ module.exports = (function()
 		    });	
 		},
 
-		matchImplicitIntent:function(){
+		createImplicitIntentRel:function(){
 			//that.permissionsOfApp = [];
 			var query = [
-			  //'START app=node({nodeId})',
-			  //'MATCH (app) -[:HasPermission]-> (permission)',
-			  //'RETURN permission'
-			  'MATCH (app) -[:HasPermission]-> (permission)',
-			  'WHERE app.appPName = {appPName}',
-			  'RETURN permission'
+			  //"MATCH (a:App),(b:Implicit),(c:IntentFilter)",
+			  //"WHERE a.appPName = b.appPName AND b.action IN c.action",
+			  //"CREATE (a)-[r1:SendIntent]->(b)-[r2:MatchFilter]->(c)",
+			  "MATCH (a:App),(b:Implicit),(c:IntentFilter)",
+			  "WHERE a.appPName = b.appPName AND all ( m in b.action where m IN c.action )",
+			  "CREATE (a)-[r1:SendIntent]->(b)-[r2:MatchFilter]->(c)",
+			  "RETURN r1, r2"
 			].join('\n');
 
-			var params = {
-			  appPName: appPName
+			var relParams = {
+				//appPName: appPName,
 			};
-
-			db.query(query, params, function (err, results) {
-			  if (err) throw err;
-			  that.permissionsOfApp.length = 0;
-			 
-			  results.map(function (result) {
-			  	//console.log(result);
-			  	var permission = result['permission']['_data']['data'];
-			  	//console.log(permission.permission);
-			  	//console.log('===');
-			  	that.permissionsOfApp.push(permission.permission);
-			  });
-			  //console.log(that.permissionsOfApp);
-
-			  callback && callback();
-			  
-			});
+			//console.log(appPName);
+			//console.log(permissions[i]);
+			db.query(query, relParams, function (err, results) {
+		    	if (err) throw err;
+		    	console.log("success3");
+		    });
 		}
 
 	}
