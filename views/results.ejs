@@ -1,0 +1,24 @@
+<% include layout %>
+
+<body>
+	
+	<form action="/createGraph", method="POST">
+		<input type="submit" value="Parse">
+	</form>
+
+	<form action="/cleanGraph", method="POST">
+		<input type="submit" value="Clean">
+	</form>
+
+	<div id="myDiagramDiv" style="border: solid 1px blue; width:1200px; height:600px">
+	</div>
+
+	<div id="nodeData" style="visibility:hidden">
+		<%= JSON.stringify(nodeDataArray) %>
+	</div>
+
+	<div id="linkData" style="visibility:hidden">
+		<%= JSON.stringify(linkDataArray) %>
+	</div>
+
+</body>

@@ -1,0 +1,21 @@
+<apps>
+  <com.example.test1>
+    <appName>test1</appName>
+    <appType>[User app]</appType>
+    <appVersion>Version: 1.0</appVersion>
+    <explicitIntent>
+      <action>com.example.testproject.explicitaction</action>
+      <target>com.example.test2</target>
+    </explicitIntent>
+    <implicitIntent>
+      <action>com.example.testproject.action</action>
+    </implicitIntent>
+  </com.example.test1>
+  <com.example.test2>
+    <appName>test2</appName>
+    <appType>[User app]</appType>
+    <appVersion>Version: 1.4.0.71 Beta</appVersion>
+    <explicitIntent />
+    <implicitIntent />
+  </com.example.test2>
+</apps>
