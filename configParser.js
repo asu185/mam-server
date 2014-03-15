@@ -117,7 +117,7 @@ module.exports = (function()
 			if(expIntent.action.length > 0)	//* Check it's not empty intent
 				this.createIntent(expIntent, true);
 			if(impIntent.action.length > 0)
-				this.createIntent(impIntent, false);	
+				this.createIntent(impIntent, false);				
 		},
 
 		//* create the App Node
@@ -199,7 +199,7 @@ module.exports = (function()
 		    });	
 		},
 
-		createImplicitIntentRel:function(){
+		createImplicitIntentRel:function(callback){
 			//that.permissionsOfApp = [];
 			var query = [
 			  //"MATCH (a:App),(b:Implicit),(c:IntentFilter)",
@@ -219,6 +219,7 @@ module.exports = (function()
 			db.query(query, relParams, function (err, results) {
 		    	if (err) throw err;
 		    	console.log("success3");
+		    	callback && callback();
 		    });
 		}
 

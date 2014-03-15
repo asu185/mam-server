@@ -160,13 +160,19 @@ app.get('/', function(req,res){
 app.post('/createGraph', function(req,res){
 	//dbHelper.cleanDb();
 	configParser = require("./configParser.js");
-	//configParser.parseXML("config.xml");
-	configParser.createImplicitIntentRel();
-	//res.redirect('/');
+	configParser.parseXML("config.xml");
+	setTimeout(function(){ 
+	    configParser.createImplicitIntentRel(function(){
+	    	res.redirect('/');
+	    });
+	}, 1000);
+	//configParser.createImplicitIntentRel();
 });
 
 app.post('/cleanGraph', function(req, res){
-	dbHelper.cleanDb();
+	dbHelper.cleanDb(function(){
+    	res.redirect('/');
+    });
 });
 //dbHelper.getPermission(1);
 //dbHelper.send();
