@@ -183,8 +183,8 @@ module.exports = (function()
 			var createIntentRelCypher = [
 			  "MATCH (a:App),(b:Intent),(c:App)",
 			  "WHERE a.appPName = b.appPName AND b.target = c.appPName",
-			  "CREATE (a)-[r:SendIntent]->(b)-[r:ReceiveIntent]->(c)",
-			  "RETURN r"
+			  "CREATE (a)-[r1:SendIntent]->(b)-[r2:ReceiveIntent]->(c)",
+			  "RETURN r1, r2"
 			].join('\n');
 			
 			

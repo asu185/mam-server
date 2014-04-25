@@ -157,13 +157,35 @@ app.get('/', function(req,res){
 	*/
 });
 
+app.get('/smsInterceptList', function(req, res){
+	dbHelper.getSmsInterceptApp(function(results){
+		//console.log('results: ' + results);
+    	if(results != null){
+    		res.render('smsInterceptList', {
+				results: results
+			});
+    	}
+	});
+});
+
 app.post('/createGraph', function(req,res){
 	//dbHelper.cleanDb();
 	configParser = require("./configParser.js");
-	configParser.parseXML("config.xml");
+	configParser.parseXML("config2.xml");
 	setTimeout(function(){ 
 	    configParser.createImplicitIntentRel(function(){
+	    	//dbHelper.getSmsInterceptApp(function(results){
+	    	//	//console.log('results: ' + results);
+		    //	if(results != null){
+		    //		res.render('smsInterceptList', {
+			//			results: results
+			//		});
+		    //	} else {
+		    //		res.redirect('/');
+		    //	}
+	    	//});
 	    	res.redirect('/');
+
 	    });
 	}, 1000);
 	//configParser.createImplicitIntentRel();

@@ -30,75 +30,76 @@ module.exports = (function()
 		},
 
 		findPermission:function(xmlDoc, tag){
-		  var element = xmlDoc.find('//' + tag);
-		  var permissions = [];
-		  for (var i = 0; i < element.length; i++){
-		    //console.log(element.constructor);
-		    //console.log(element[i].attr("name").value());
-		    //console.log(element[i].childNodes()[1].name());
-		    console.log("----------");
-		    permissions.push(element[i].attr("name").value());
-		  }
-		  return permissions;
+		  	var element = xmlDoc.find('//' + tag);
+		  	var permissions = [];
+		  	for (var i = 0; i < element.length; i++){
+		  	  //console.log(element.constructor);
+		  	  //console.log(element[i].attr("name").value());
+		  	  //console.log(element[i].childNodes()[1].name());
+		  	  console.log("----------");
+		  	  permissions.push(element[i].attr("name").value());
+		  	}
+		  	return permissions;
 		},
 	
 		findComponent:function(xmlDoc, tag){
-		  var components = xmlDoc.find('//' + tag);
-		  for (var i = 0; i < components.length; i++){
-		  	var permissionAttr = '';
-		    //console.log(components.constructor);
-		    //console.log(components[i].attr("name").value());
-		    //createComp(components[i].name(), components[i].attr("name").value());
+		 	var components = xmlDoc.find('//' + tag);
+		 	for (var i = 0; i < components.length; i++){
+		 		var permissionAttr = '';
+		 	  //console.log(components.constructor);
+		 	  //console.log(components[i].attr("name").value());
+		 	  //createComp(components[i].name(), components[i].attr("name").value());
 
-		    if(components[i].attr("permission")){	//* if permission attribute exist
+		 	  if(components[i].attr("permission")){	//* if permission attribute exist
 				permissionAttr = components[i].attr("permission").value();
 				//console.log(components[i].attr("permission").value());
 			}
-		    //* component[i] is a component tag, e.g. <activity> or <receiver>
-		    this.findIntentFilter(components[i], permissionAttr);
+		 	  //* component[i] is a component tag, e.g. <activity> or <receiver>
+		 	  this.findIntentFilter(components[i], permissionAttr);
 
-		    //console.log(component[i].childNodes()[1].name());
-		    console.log("----------");
-		  }
+		 	  //console.log(component[i].childNodes()[1].name());
+		 	  console.log("----------");
+		 	}
 		},
 		
 		findIntentFilter:function(component, permissionAttr){
-		  if(component.childNodes().length > 0){ //if intent-fileter exists
-		    for (var i = 0; i < component.childNodes().length; i++){ //for each intent-filter
-		      if(component.childNodes()[i].name() != 'text'){
-		      	//console.log(component.name());
-		      	//console.log(component.constructor);
-		      	var intentFilter = {};
-		      	intentFilter.appPName = this.appPName;
-		      	//console.log(this.appPName);
-		      	intentFilter.permissionAttr = permissionAttr;
-		      	intentFilter.componentType = component.name();
-			  	intentFilter.action = [];
-			  	intentFilter.category = [];
-			  	intentFilter.data = [];
-		        var intent_filter_tag = component.childNodes()[i];
-		        //console.log("pri: " + intent_filter_tag.attr("priority"));
-		        if(intent_filter_tag.attr("priority") != null)
-		        	intentFilter.priority = intent_filter_tag.attr("priority").value();
-
-		        for (var j = 0; j < intent_filter_tag.childNodes().length; j++){
-		          //if(intent_filter_tag.childNodes()[j].name() != 'text'){
-		          if(intent_filter_tag.childNodes()[j].name() == 'action'){
-		          	intentFilter.action.push(intent_filter_tag.childNodes()[j].attr("name").value());
-		            //console.log("action: " + intent_filter_tag.childNodes()[j].attr("name").value());
-		          } else if(intent_filter_tag.childNodes()[j].name() == 'category'){
-		          	intentFilter.category.push(intent_filter_tag.childNodes()[j].attr("name").value());
-		            //console.log("category: " + intent_filter_tag.childNodes()[j].attr("name").value());
-		          } else if(intent_filter_tag.childNodes()[j].name() == 'data'){
-		          	intentFilter.data.push(intent_filter_tag.childNodes()[j].attr("name").value());
-		            //console.log("data: " + intent_filter_tag.childNodes()[j].attr("name").value());
+		    //console.log('findIntentFilter');
+		    if(component.childNodes().length > 0){ //if intent-fileter exists
+		      for (var i = 0; i < component.childNodes().length; i++){ //for each intent-filter
+		        if(component.childNodes()[i].name() != 'text'){
+		        	//console.log(component.name());
+		        	//console.log(component.constructor);
+		        	var intentFilter = {};
+		        	intentFilter.appPName = this.appPName;
+		        	//console.log(this.appPName);
+		        	intentFilter.permissionAttr = permissionAttr;
+		        	intentFilter.componentType = component.name();
+			    	intentFilter.action = [];
+			    	intentFilter.category = [];
+			    	intentFilter.data = [];
+		          var intent_filter_tag = component.childNodes()[i];
+		          //console.log("pri: " + intent_filter_tag.attr("priority"));
+		          if(intent_filter_tag.attr("priority") != null)
+		          	intentFilter.priority = intent_filter_tag.attr("priority").value();
+  
+		          for (var j = 0; j < intent_filter_tag.childNodes().length; j++){
+		            //if(intent_filter_tag.childNodes()[j].name() != 'text'){
+		            if(intent_filter_tag.childNodes()[j].name() == 'action'){
+		            	intentFilter.action.push(intent_filter_tag.childNodes()[j].attr("name").value());
+		              //console.log("action: " + intent_filter_tag.childNodes()[j].attr("name").value());
+		            } else if(intent_filter_tag.childNodes()[j].name() == 'category'){
+		            	intentFilter.category.push(intent_filter_tag.childNodes()[j].attr("name").value());
+		              //console.log("category: " + intent_filter_tag.childNodes()[j].attr("name").value());
+		            } else if(intent_filter_tag.childNodes()[j].name() == 'data'){
+		            	intentFilter.data.push(intent_filter_tag.childNodes()[j].attr("name").value());
+		              //console.log("data: " + intent_filter_tag.childNodes()[j].attr("name").value());
+		            }
+		            //console.log(component.childNodes()[j].name());
 		          }
-		          //console.log(component.childNodes()[j].name());
-		        }
-		      	this.createIntentFilter(intentFilter);
-		      }     
+		        	this.createIntentFilter(intentFilter);
+		        }     
+		      }
 		    }
-		  }
 		},
 
 		//* create Perm Nodes
@@ -209,7 +210,7 @@ module.exports = (function()
 
 		//* create IntentFilters
 		createIntentFilter:function(intentFilter){
-			//console.log(intent);
+			//console.log('createIntentFilter');
 			var createIntentFilterCypher = [
 			  "CREATE (n:IntentFilter)",
 			  //"CREATE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}})",

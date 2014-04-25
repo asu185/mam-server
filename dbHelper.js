@@ -228,7 +228,8 @@ module.exports = (function()
 			console.log("clean");
 			var clean = [
 				"START n = node(*)",
-				"MATCH n-[r?]-()",
+				//"MATCH n-[r?]-()",  //* this is for neo4j-2.0.0
+				"OPTIONAL MATCH n-[r]-()", //* this is for neo4j-2.0.1
 				"DELETE n, r"
 			].join('\n');
 
@@ -238,6 +239,44 @@ module.exports = (function()
 			db.query(clean, params, function (err, results) {
 			  if (err) throw err;
 			  callback && callback();
+			});
+		},
+
+		getSmsInterceptApp:function(callback){
+			var query = [
+				"match (a:App), (b:Permission), (c:IntentFilter)",
+				"where \
+					(a) -[:HasPermission]-> (b) and \
+					b.permission = 'android.permission.RECEIVE_SMS' and \
+					all ( m in c.action where m = 'android.provider.Telephony.SMS_RECEIVED')",
+				"return a.appPName"
+			].join('\n');
+
+			var params = {
+				//appPName: appPName,
+				//permission: permissions[i]
+			};
+
+			db.query(query, params, function (err, results) {
+			  if (err) throw err;
+
+			  //console.log("results.length => " + results.length);
+
+			  if(results.length !== 0){
+			  	//console.log("results.length == 0");
+			  	results.map(function (result) {
+					//console.log("result['a.appPName']: " + result['a.appPName']);
+					//var intent_filter = result['intent_filter']['_data']['data'];
+					//console.log(intent.intent);
+					//console.log('===');
+					
+					callback && callback(result['a.appPName']);
+				});	
+			  } else {
+			  	callback && callback("None");
+			  }
+			  
+			  
 			});
 		}
 		
