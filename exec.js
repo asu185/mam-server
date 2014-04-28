@@ -117,9 +117,9 @@ app.get('/', function(req,res){
 			//console.log(nodeDataArray);
 		});
 
-		
-	});
-	
+
+});
+
 	/*
 	dbHelper.getNodes(function(){
 		var apps = [];
@@ -154,47 +154,40 @@ app.get('/', function(req,res){
 		//console.log(apps);
 		
 	});
-	*/
+*/
 });
 
 app.get('/smsInterceptList', function(req, res){
 	dbHelper.getSmsInterceptApp(function(results){
 		//console.log('results: ' + results);
-    	if(results != null){
-    		res.render('smsInterceptList', {
+		if(results != null){
+			res.render('smsInterceptList', {
 				results: results
 			});
-    	}
+		}
 	});
 });
 
-app.post('/createGraph', function(req,res){
+app.post('/generateGraph', function(req,res){
 	//dbHelper.cleanDb();
 	configParser = require("./configParser.js");
-	configParser.parseXML("config2.xml");
-	setTimeout(function(){ 
-	    configParser.createImplicitIntentRel(function(){
-	    	//dbHelper.getSmsInterceptApp(function(results){
-	    	//	//console.log('results: ' + results);
-		    //	if(results != null){
-		    //		res.render('smsInterceptList', {
-			//			results: results
-			//		});
-		    //	} else {
-		    //		res.redirect('/');
-		    //	}
-	    	//});
-	    	res.redirect('/');
+	configParser.parseXML("config2.xml", function(){
+		configParser.createImplicitIntentRel(function(){
+			res.redirect('/');
+		});
+	});
 
-	    });
-	}, 1000);
-	//configParser.createImplicitIntentRel();
+	//setTimeout(function(){ 
+	//	configParser.createImplicitIntentRel(function(){
+	//		res.redirect('/');
+	//	});
+	//}, 1000);
 });
 
 app.post('/cleanGraph', function(req, res){
 	dbHelper.cleanDb(function(){
-    	res.redirect('/');
-    });
+		res.redirect('/');
+	});
 });
 //dbHelper.getPermission(1);
 //dbHelper.send();
