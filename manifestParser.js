@@ -8,12 +8,14 @@ module.exports = (function()
 	{
 		appPName:0,
 		filename:0,
+		count:0,
 
 		parseXML:function(appPName, callback) {
-
+			that = this;
 			var libxmljs = require("libxmljs");
 			var fs = require('fs');
-			var tasks =[];
+			var asyncTasks = [];
+			var compNames = [];
 
 			this.appPName = appPName;
 			this.filename = appPName + "_AndroidManifest.xml"
@@ -26,13 +28,38 @@ module.exports = (function()
 		      var xmlDoc = libxmljs.parseXmlString(data);
 		      var permissions = this.findPermission(xmlDoc, 'uses-permission');
 
-		      this.createPerms(permissions, appPName);
-		      this.findComponent(xmlDoc, 'activity');
-		      this.findComponent(xmlDoc, 'service');
-		      this.findComponent(xmlDoc, 'receiver');
+		      var t1 = function(final_callback){
+		      	that.createPerms(permissions, appPName, final_callback);
+		      }
 
-		      //async.parallel(tasks, callback);
-		      callback && callback();
+		      compNames.push('activity');
+		      compNames.push('service');
+		      compNames.push('receiver');
+
+		      var t2 = function(final_callback){
+		      	async.each(compNames, function(name, task_callback) {
+		      		//console.log("name = " + name);
+			      	that.findComponent(xmlDoc, name, task_callback);
+			      }, function(err){
+			      	if( err ) {
+						// One of the iterations produced an error.
+						// All processing will now stop.
+						console.log('A file failed to process');
+					} else {
+						console.log('All files have been processed successfully');
+						final_callback();
+					}
+			      });
+		      }
+
+		      //that.findComponent(xmlDoc, 'activity');
+		      //that.findComponent(xmlDoc, 'service');
+		      //that.findComponent(xmlDoc, 'receiver');
+
+		      asyncTasks.push(t1);
+		      asyncTasks.push(t2);
+		      async.parallel(asyncTasks, callback);
+		      //callback && callback();
 		},
 
 		findPermission:function(xmlDoc, tag) {
@@ -42,75 +69,145 @@ module.exports = (function()
 		  		//console.log(element.constructor);
 		  		//console.log(element[i].attr("name").value());
 		  		//console.log(element[i].childNodes()[1].name());
-		  		console.log("----------");
+		  		//console.log("----------");
 		  		permissions.push(element[i].attr("name").value());
 		  	}
 		  	return permissions;
 		},
 
-		findComponent:function(xmlDoc, tag) {
+		findComponent:function(xmlDoc, tag, task_callback) {
+			that = this;
 		  	var components = xmlDoc.find('//' + tag);
+		  	//console.log("components.length = " + components.length);
+		  	var tasks = [];
 		  	for (var i = 0; i < components.length; i++) {
-		  		var permissionAttr = '';
-		 		//console.log(components.constructor);
-		 		//console.log(components[i].attr("name").value());
-		 		//createComp(components[i].name(), components[i].attr("name").value());
+		  		//console.log("i = " + i);
+		  		
+		  		var a = function(){
+		 			var value = i;
+			  		var permissionAttr = "";
 
-		 		if (components[i].attr("permission")) {	//* if permission attribute exist
-		 			permissionAttr = components[i].attr("permission").value();
-					//console.log(components[i].attr("permission").value());
-				}
-		 		//* component[i] is a component tag, e.g. <activity> or <receiver>
-		 		this.findIntentFilter(components[i], permissionAttr);
+			 		//console.log(components.constructor);
+			 		//console.log(components[i].attr("name").value());
+			 		//createComp(components[i].name(), components[i].attr("name").value());
 
-		 	  	//console.log(component[i].childNodes()[1].name());
-		 		console.log("----------");
+			 		if (components[value].attr("permission")) {	//* if permission attribute exist
+			 			permissionAttr = components[value].attr("permission").value();
+						//console.log(components[value].attr("permission").value());
+					}
+			 		//* component[value] is a component tag, e.g. <activity> or <receiver>
+		 			//console.log("value = " + value);
+		 			var findIntentFilter = function(callback){
+		 				//console.log("value2 = " + value);
+		 				var filter_count = 0;
+		 				var count = 0;
+		 				//console.log("components[value] = " + components[value]);
+			  			//console.log("components[value].childNodes().length = " + components[value].childNodes().length);
+		 				if(components[value].childNodes().length > 1){ //if intent-fileter exists
+		 					//console.log('t1');
+
+						      for (var i = 0; i < components[value].childNodes().length; i++) { //for each intent-filter
+						      	//console.log('t2');
+						      	if(components[value].childNodes()[i].name() != 'text'){
+						      		filter_count++;
+						      		//console.log('t3');
+							        	//console.log(components[value].name());
+							        	//console.log(components[value].constructor);
+							        	var intentFilter = {};
+							        	intentFilter.appPName = that.appPName;
+							        	//console.log(that.appPName);
+							        	intentFilter.permissionAttr = permissionAttr;
+							        	intentFilter.componentType = components[value].name();
+							        	intentFilter.action = [];
+							        	intentFilter.category = [];
+							        	intentFilter.data = [];
+							        	var intent_filter_tag = components[value].childNodes()[i];
+							          	//console.log("pri: " + intent_filter_tag.attr("priority"));
+							          	if(intent_filter_tag.attr("priority") != null){
+							          		intentFilter.priority = intent_filter_tag.attr("priority").value();
+							          	}
+
+							          	for (var j = 0; j < intent_filter_tag.childNodes().length; j++){
+							          		//console.log('t4');
+								            //if(intent_filter_tag.childNodes()[j].name() != 'text'){
+								            if(intent_filter_tag.childNodes()[j].name() == 'action') {
+								            	intentFilter.action.push(intent_filter_tag.childNodes()[j].attr("name").value());
+								              	//console.log("action: " + intent_filter_tag.childNodes()[j].attr("name").value());
+								            } else if(intent_filter_tag.childNodes()[j].name() == 'category'){
+								            	intentFilter.category.push(intent_filter_tag.childNodes()[j].attr("name").value());
+								              	//console.log("category: " + intent_filter_tag.childNodes()[j].attr("name").value());
+								            } else if(intent_filter_tag.childNodes()[j].name() == 'data'){
+								            	intentFilter.data.push(intent_filter_tag.childNodes()[j].attr("name").value());
+								             	//console.log("data: " + intent_filter_tag.childNodes()[j].attr("name").value());
+								            }
+								            //console.log(components[value].childNodes()[j].name());
+							          	}
+							          	//console.log('t5');
+							          	var createIntentFilter = function(intentFilter, task_callback){
+								          	//console.log('createIntentFilter: ' + JSON.stringify(intentFilter));
+								          	
+										var createIntentFilterCypher = [
+											"CREATE (n:IntentFilter)",
+											//"CREATE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}})",
+											"SET n = { props }",
+											"RETURN n"
+										].join('\n');
+
+										var params = {
+											"props" : intentFilter,
+										};
+
+										db.query(createIntentFilterCypher, params, function (err, results) {
+											if (err) throw err;
+											//createIntentFilterRel();
+											//console.log("count = " + count);
+											//console.log("filter_count = " + filter_count);
+											count++;
+											if(count == filter_count){
+												//console.log("count = filter_count = " + count);
+												createIntentFilterRel(task_callback);
+												//task_callback();
+											}
+										});
+
+										//* create IntentFilter Rel
+										function createIntentFilterRel(task_callback){
+											//console.log('createIntentFilterRel');
+											var createIntentFilterRelCypher = [
+												"MATCH (a:App),(b:IntentFilter)",
+												"WHERE a.appPName = b.appPName",
+												"CREATE (b)-[r:BelongTo]->(a)",
+												"RETURN r"
+											].join('\n');
+											
+											
+											var relParams = {
+												//appPName: that.appPName,
+											};
+											//console.log(appPName);
+											//console.log(permissions[i]);
+											db.query(createIntentFilterRelCypher, relParams, function (err, results) {
+												if (err) throw err;
+												task_callback && task_callback();
+											});	
+										}
+									}(intentFilter, callback);
+							      }
+						      }
+					    	}
+		 			};
+		 			return findIntentFilter;
+		 		}();
+		 		tasks.push(a);
+		 	  	//console.log(components[i][i].childNodes()[1].name());
+		 		//console.log("----------");
+		 		//task_callback && task_callback();
 		 	}
-		},
-
-		findIntentFilter:function(component, permissionAttr){
-			//console.log('findIntentFilter');
-		    	if(component.childNodes().length > 0){ //if intent-fileter exists
-			      for (var i = 0; i < component.childNodes().length; i++) { //for each intent-filter
-			      	if(component.childNodes()[i].name() != 'text'){
-				        	//console.log(component.name());
-				        	//console.log(component.constructor);
-				        	var intentFilter = {};
-				        	intentFilter.appPName = this.appPName;
-				        	//console.log(this.appPName);
-				        	intentFilter.permissionAttr = permissionAttr;
-				        	intentFilter.componentType = component.name();
-				        	intentFilter.action = [];
-				        	intentFilter.category = [];
-				        	intentFilter.data = [];
-				        	var intent_filter_tag = component.childNodes()[i];
-				          	//console.log("pri: " + intent_filter_tag.attr("priority"));
-				          	if(intent_filter_tag.attr("priority") != null){
-				          		intentFilter.priority = intent_filter_tag.attr("priority").value();
-				          	}
-
-				          	for (var j = 0; j < intent_filter_tag.childNodes().length; j++){
-					            //if(intent_filter_tag.childNodes()[j].name() != 'text'){
-					            if(intent_filter_tag.childNodes()[j].name() == 'action') {
-					            	intentFilter.action.push(intent_filter_tag.childNodes()[j].attr("name").value());
-					              	//console.log("action: " + intent_filter_tag.childNodes()[j].attr("name").value());
-					            } else if(intent_filter_tag.childNodes()[j].name() == 'category'){
-					            	intentFilter.category.push(intent_filter_tag.childNodes()[j].attr("name").value());
-					              	//console.log("category: " + intent_filter_tag.childNodes()[j].attr("name").value());
-					            } else if(intent_filter_tag.childNodes()[j].name() == 'data'){
-					            	intentFilter.data.push(intent_filter_tag.childNodes()[j].attr("name").value());
-					             	//console.log("data: " + intent_filter_tag.childNodes()[j].attr("name").value());
-					            }
-					            //console.log(component.childNodes()[j].name());
-				          	}
-				          	this.createIntentFilter(intentFilter);
-				      }     
-			      }
-		    	}
+		 	async.parallel(tasks, task_callback);
 		},
 
 		//* create Perm Nodes
-		createPerms:function(permissions, appPName){
+		createPerms:function(permissions, appPName, callback){
 			//var permissions = permissions.split('\n');
 	  		//console.log(permissions);
 	  		//var isAllPermNodesAdded = false;
@@ -134,7 +231,9 @@ module.exports = (function()
 						countPermNodes++;
 						if(countPermNodes == permissions.length){
 					    		//isAllPermNodesAdded = true;
-					    		createPermRels(permissions, appPName);
+					    		createPermRels(permissions, appPName, callback);
+					    		//console.log("createPerms");
+					    		//callback && callback();
 					    	}
 					    	//console.log(countPermNodes);
 					    	//console.log(isAllPermNodesAdded);
@@ -148,8 +247,9 @@ module.exports = (function()
 			}
 
 	  		//* create Perm Rels
-	  		function createPermRels(permissions, appPName){
+	  		function createPermRels(permissions, appPName, callback){
 			    	//console.log('create Rel');
+			    	var countPermRels = 0;
 			    	var createRelCypher = [
 					"MATCH (a:App),(b:Permission)",
 					"WHERE a.appPName = {appPName} AND b.permission = {permission}",
@@ -166,6 +266,12 @@ module.exports = (function()
 					//console.log(permissions[i]);
 					db.query(createRelCypher, relParams, function (err, results) {
 						if (err) throw err;
+						countPermRels++;
+						//console.log("countPermRels = " + countPermRels);
+						//console.log("permissions.length = " + permissions.length);
+						if (countPermRels == permissions.length){
+							callback && callback();	
+						}
 					});
 				}
 			}
@@ -210,47 +316,6 @@ module.exports = (function()
 				//console.log(appPName);
 				//console.log(permissions[i]);
 				db.query(createCompRelCypher, relParams, function (err, results) {
-					if (err) throw err;
-				});	
-			}
-		},
-
-		//* create IntentFilters
-		createIntentFilter:function(intentFilter){
-			//console.log('createIntentFilter');
-			var createIntentFilterCypher = [
-				"CREATE (n:IntentFilter)",
-				//"CREATE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}})",
-				"SET n = { props }",
-				"RETURN n"
-			].join('\n');
-
-			var params = {
-				"props" : intentFilter,
-			};
-
-			db.query(createIntentFilterCypher, params, function (err, results) {
-				if (err) throw err;
-				createIntentFilterRel();
-			});
-
-			//* create IntentFilter Rel
-			function createIntentFilterRel(){
-				//console.log('create Rel');
-				var createIntentFilterRelCypher = [
-					"MATCH (a:App),(b:IntentFilter)",
-					"WHERE a.appPName = b.appPName",
-					"CREATE (b)-[r:BelongTo]->(a)",
-					"RETURN r"
-				].join('\n');
-				
-				
-				var relParams = {
-					//appPName: this.appPName,
-				};
-				//console.log(appPName);
-				//console.log(permissions[i]);
-				db.query(createIntentFilterRelCypher, relParams, function (err, results) {
 					if (err) throw err;
 				});	
 			}
