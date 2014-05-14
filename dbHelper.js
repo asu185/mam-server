@@ -248,7 +248,8 @@ module.exports = (function()
 				"where \
 					(a) -[:HasPermission]-> (b) and \
 					b.permission = 'android.permission.RECEIVE_SMS' and \
-					all ( m in c.action where m = 'android.provider.Telephony.SMS_RECEIVED')",
+					all ( m in c.action where m = 'android.provider.Telephony.SMS_RECEIVED') and \
+					c.priority > 0",
 				"return a.appPName"
 			].join('\n');
 

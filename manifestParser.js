@@ -124,7 +124,7 @@ module.exports = (function()
 							        	var intent_filter_tag = components[value].childNodes()[i];
 							          	//console.log("pri: " + intent_filter_tag.attr("priority"));
 							          	if(intent_filter_tag.attr("priority") != null){
-							          		intentFilter.priority = intent_filter_tag.attr("priority").value();
+							          		intentFilter.priority = parseInt(intent_filter_tag.attr("priority").value(), 10);
 							          	}
 
 							          	for (var j = 0; j < intent_filter_tag.childNodes().length; j++){
