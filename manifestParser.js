@@ -101,7 +101,7 @@ module.exports = (function()
 		 				//console.log("value2 = " + value);
 		 				var filter_count = 0;
 		 				var count = 0;
-		 				//console.log("components[value] = " + components[value]);
+		 				//console.log("components[value].childNodes() = " + components[value].childNodes());
 			  			//console.log("components[value].childNodes().length = " + components[value].childNodes().length);
 		 				if(components[value].childNodes().length > 1){ //if intent-fileter exists
 		 					//console.log('t1');
@@ -194,6 +194,8 @@ module.exports = (function()
 									}(intentFilter, callback);
 							      }
 						      }
+					    	} else {
+					    		callback();
 					    	}
 		 			};
 		 			return findIntentFilter;
@@ -209,10 +211,10 @@ module.exports = (function()
 		//* create Perm Nodes
 		createPerms:function(permissions, appPName, callback){
 			//var permissions = permissions.split('\n');
-	  		//console.log(permissions);
+	  		console.log(permissions[0]);
 	  		//var isAllPermNodesAdded = false;
 	  		var countPermNodes=0;
-	  		if(permissions[0] != ''){
+	  		if(permissions[0] != null){
 	  			for(var i=0; i<permissions.length; i++){
 	  				var createPermsCypher = [
 					  	//"CREATE (n:Permission {permission: {permission}})",
@@ -244,6 +246,9 @@ module.exports = (function()
 			      		//}  
 			      	});
 				}
+			} else {
+				//console.log("else");
+				callback();
 			}
 
 	  		//* create Perm Rels

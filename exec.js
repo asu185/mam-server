@@ -171,7 +171,7 @@ app.get('/smsInterceptList', function(req, res){
 app.post('/generateGraph', function(req,res){
 	//dbHelper.cleanDb();
 	configParser = require("./configParser.js");
-	configParser.parseXML("config2.xml", function(){
+	configParser.parseXML("config3.xml", function(){
 		configParser.createImplicitIntentRel(function(){
 			res.redirect('/');
 		});

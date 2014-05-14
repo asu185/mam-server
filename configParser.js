@@ -91,8 +91,9 @@ module.exports = (function()
 								parseManifest = function(callback){
 									manifestParser.parseXML(appPName, callback);
 								};
-
-								if(expIntent.action.length > 0) {	//* Check it's not empty intent
+								//console.log("exp: " + JSON.stringify(expIntent));
+								//console.log("exp.length: " + expIntent.length);
+								if(expIntent.action.length > 0 || expIntent.target != null) {	//* Check it's not empty intent
 									createExpIntent = function(callback){
 										var	type = "Explicit";
 
@@ -198,17 +199,19 @@ module.exports = (function()
 				for (var j = 0; j < intent_tag.childNodes().length; j++){
 					if(intent_tag.childNodes()[j].name() == 'action'){
 						intent.action.push(intent_tag.childNodes()[j].text());
-								  //console.log("action: " + intent_tag.childNodes()[j].text());
-								} else if(intent_tag.childNodes()[j].name() == 'category'){
-									intent.category.push(intent_tag.childNodes()[j].text());
-								  //console.log("category: " + intent_tag.childNodes()[j].text());
-								} else if(intent_tag.childNodes()[j].name() == 'data'){
-									intent.data.push(intent_tag.childNodes()[j].text());
-								  //console.log("data: " + intent_tag.childNodes()[j].text());
-								} else if(isExplicit && intent_tag.childNodes()[j].name() == 'target'){
-									intent.target = intent_tag.childNodes()[j].text();
-								//console.log(component.childNodes()[j].name());
-							}
+						  //console.log("action: " + intent_tag.childNodes()[j].text());
+					} else if(intent_tag.childNodes()[j].name() == 'category'){
+						intent.category.push(intent_tag.childNodes()[j].text());
+					  //console.log("category: " + intent_tag.childNodes()[j].text());
+					} else if(intent_tag.childNodes()[j].name() == 'data'){
+						intent.data.push(intent_tag.childNodes()[j].text());
+					  //console.log("data: " + intent_tag.childNodes()[j].text());
+					} else if(isExplicit && intent_tag.childNodes()[j].name() == 'target'){
+						intent.target = intent_tag.childNodes()[j].text();
+					//console.log(component.childNodes()[j].name());
+					} else if(intent_tag.childNodes()[j].name() == 'targetType'){
+						intent.targetType = intent_tag.childNodes()[j].text();
+					}
 				}
 				return intent;
 			}
