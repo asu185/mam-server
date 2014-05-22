@@ -27,7 +27,8 @@ module.exports = (function()
 				      	var a = function() {
 				      		var generateGraphOfApp;
 				      		var appInfo = [];
-				      		var intentInfo = [];
+				      		var expIntentInfo = [];
+				      		var impIntentInfo = [];
 				      		var appPName = apps[i].name();
 				      		appInfo.push(appPName);
 						      //console.log(apps[i].name());
@@ -35,12 +36,12 @@ module.exports = (function()
 						      	if(apps[i].childNodes()[j].name() == 'explicitIntent') {
 						      		var explicit_intent_tag = apps[i].childNodes()[j];
 						      		var intent = getIntent(appPName, explicit_intent_tag, true);
-						      		intentInfo.push(intent);
+						      		expIntentInfo.push(intent);
 
 						      	} else if (apps[i].childNodes()[j].name() == 'implicitIntent') {
 						      		var implicit_intent_tag = apps[i].childNodes()[j];
 						      		var intent = getIntent(appPName, implicit_intent_tag, false);
-						      		intentInfo.push(intent);
+						      		impIntentInfo.push(intent);
 
 						      	} else if(apps[i].childNodes()[j].name() != 'text') {
 							      	//console.log(apps[i].childNodes()[j].text());
@@ -50,7 +51,7 @@ module.exports = (function()
 						      //console.log(appInfo);
 						      console.log('-----------------------------');
 						      
-						      //var b = that.createGraphOfApp(appInfo, intentInfo, task_callback);
+						      //var b = that.createGraphOfApp(appInfo, expIntentInfo, task_callback);
 						      generateGraphOfApp = function(task_callback) {
 						      	var inner_tasks = [];
 						      	var appPName = appInfo[0];
@@ -58,9 +59,11 @@ module.exports = (function()
 							      	appType = appInfo[2], 
 							      	singature = 'testSig',
 							      	version = appInfo[3];
-						      	var	expIntent = intentInfo[0],
-						      		impIntent = intentInfo[1];
-						      	var createExpIntent = function(callback){callback()};
+							      var exp_Intent_tasks = [];
+							      var imp_Intent_tasks = [];
+						      	//var	expIntent = expIntentInfo,
+						      	//var impIntent = impIntentInfo[0];
+						      	//var createExpIntent = function(callback){callback()};
 						      	var createImpIntent = function(callback){callback()};
 						      	var manifestParser;
 						      	var parseManifest;
@@ -91,10 +94,13 @@ module.exports = (function()
 								parseManifest = function(callback){
 									manifestParser.parseXML(appPName, callback);
 								};
-								//console.log("exp: " + JSON.stringify(expIntent));
-								//console.log("exp.length: " + expIntent.length);
-								if(expIntent.action.length > 0 || expIntent.target != null) {	//* Check it's not empty intent
-									createExpIntent = function(callback){
+								//console.log("expInfo: " + JSON.stringify(expIntentInfo));
+								//console.log("expInfo.length: " + expIntentInfo.length);
+								//console.log("expInfo[0].string: " + JSON.stringify(expIntentInfo[0]));
+								//console.log("expInfo[0]: " + expIntentInfo[0]);
+																
+								var createExpIntent = function(expIntent, callback){
+									if(expIntent.action.length > 0 || expIntent.target != null) {	//* Check it's not empty intent
 										var	type = "Explicit";
 
 										var createIntentCypher = [
@@ -131,11 +137,30 @@ module.exports = (function()
 												callback();
 											});
 										});
+									} else {
+										callback();
 									}
 								}
 
-								if(impIntent.action.length > 0){
-									createImpIntent = function(callback){
+								var exp_Intent_tasks = function(final_callback){
+							      	async.each(expIntentInfo, function(expIntent, task_callback) {
+							      		//console.log("name = " + name);
+								      	createExpIntent(expIntent, task_callback);
+								      }, function(err){
+								      	if( err ) {
+											// One of the iterations produced an error.
+											// All processing will now stop.
+											console.log('A file failed to process');
+										} else {
+											console.log('Explicit Intent have been processed successfully');
+											final_callback();
+										}
+								      });
+							      }
+
+								
+								var	createImpIntent = function(impIntent, callback){
+									if(impIntent.action.length > 0){
 										var	type = "Implicit";
 
 										var createIntentCypher = [
@@ -154,13 +179,33 @@ module.exports = (function()
 										  	console.log("impIntent creation succeed");
 										  	callback();
 										});
-									};
-								}
+									} else {
+										callback();
+									}
+								};
+								
+								var imp_Intent_tasks = function(final_callback){
+							      	async.each(impIntentInfo, function(impIntent, task_callback) {
+							      		//console.log("name = " + name);
+								      	createImpIntent(impIntent, task_callback);
+								      }, function(err){
+								      	if( err ) {
+											// One of the iterations produced an error.
+											// All processing will now stop.
+											console.log('A file failed to process');
+										} else {
+											console.log('Explicit Intent have been processed successfully');
+											final_callback();
+										}
+								      });
+							      }
 
 								inner_tasks.push(createApp);
 								inner_tasks.push(parseManifest);
-								inner_tasks.push(createExpIntent);
-								inner_tasks.push(createImpIntent);	
+								//inner_tasks.push(createExpIntent);
+								inner_tasks.push(exp_Intent_tasks);
+								//inner_tasks.push(createImpIntent);
+								inner_tasks.push(imp_Intent_tasks);
 		
 								async.parallel(inner_tasks, task_callback);
 							}

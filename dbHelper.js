@@ -279,6 +279,47 @@ module.exports = (function()
 			  
 			  
 			});
+		},
+
+		getExternalService:function(callback){
+			var query = [
+				"match (a:App), (b:App), (c:Explicit)",
+				"where (a) -[:SendIntent]-> (c) -[:ReceiveIntent]-> (b) and \
+				c.targetType = 'service'",
+				"return a.appPName, b.appPName"
+			].join('\n');
+
+			var params = {
+				//appPName: appPName,
+				//permission: permissions[i]
+			};
+
+			db.query(query, params, function (err, results) {
+			  if (err) throw err;
+
+			  //console.log("results.length => " + results.length);
+			  var results_arr = [];
+			  if(results.length !== 0){
+			  	//console.log("results.length == 0");
+			  	results.map(function (result) {
+					//console.log("result['a.appPName']: " + result['a.appPName']);
+					//var intent_filter = result['intent_filter']['_data']['data'];
+					//console.log(intent.intent);
+					//console.log('===');
+					//console.log('result='+JSON.stringify(result));
+					//console.log('result[a]='+result['a.appPName']);
+					//console.log('result[b]='+result['b.appPName']);
+					//callback && callback(result);
+					results_arr.push("from: " + result['a.appPName'] + " to: " + result['b.appPName']);
+				});	
+			  	callback && callback(results_arr);
+			  } else {
+			  	callback && callback("None");
+			  }
+			  
+			  
+			});
+
 		}
 		
 	}
