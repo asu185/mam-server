@@ -200,40 +200,23 @@ module.exports = (function()
 								      });
 							      }
 
-								inner_tasks.push(createApp);
+								//inner_tasks.push(createApp);
 								inner_tasks.push(parseManifest);
-								//inner_tasks.push(createExpIntent);
 								inner_tasks.push(exp_Intent_tasks);
-								//inner_tasks.push(createImpIntent);
 								inner_tasks.push(imp_Intent_tasks);
 		
-								async.parallel(inner_tasks, task_callback);
-								/*
+								//async.parallel(inner_tasks, task_callback);
+								
 								async.series([
-									function(task_callback){
-										var createApp = [
-											"CREATE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}, singature: {singature}})",
-											//"CREATE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}})",
-											"RETURN n"
-										].join('\n');
-
-										var params = {
-											appName: appName,
-											appPName: appPName,
-											appType: appType, 
-											singature: singature
-										};
-
-										db.query(createApp, params, function (err, results) {
-											if (err) throw err;
-											task_callback && task_callback();
-										});
-									},
-									function(task_callback){
-										async.parallel(inner_tasks, task_callback);
+									createApp,
+									function(callback){
+										async.parallel(inner_tasks, callback);
 									}
-								]);
-								*/
+								], function(err){
+									if (err) return next(err);
+									task_callback();
+								});
+								
 							}
 
 							return generateGraphOfApp;

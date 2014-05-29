@@ -66,6 +66,33 @@ module.exports = (function()
 		      asyncTasks.push(t1);
 		      asyncTasks.push(t2);
 		      async.parallel(asyncTasks, callback);
+		      /*
+		      async.parallel(asyncTasks, function(callback){
+		      	if (xmlDoc.root().attr("sharedUserId") != null){
+			      	var sharedUserId = xmlDoc.root().attr("sharedUserId").value();
+			      	console.log("id: " + sharedUserId);
+			      	var query = [
+						"MATCH (a:App {appPName: {appPName} })",
+						"SET a.sharedUserId = {sharedUserId}",
+						"RETURN a"
+					].join('\n');
+
+					var params = {
+						appPName: that.appPName,
+						sharedUserId: sharedUserId
+					};
+					console.log("appPName: " + that.appPName);
+					//console.log(permissions[i]);
+					db.query(query, params, function (err, results) {
+						if (err) throw err;
+						console.log("set sharedUserId success!");
+						callback && callback();
+					});
+			      } else {
+			      	callback && callback();
+			      }
+		      });
+		      */
 		      //callback && callback();
 		},
 
