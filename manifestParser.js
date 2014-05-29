@@ -26,7 +26,14 @@ module.exports = (function()
 			var data = fs.readFileSync(this.filename, 'utf8');
 		      // console.log(data);
 		      var xmlDoc = libxmljs.parseXmlString(data);
-		      var permissions = this.findPermission(xmlDoc, 'uses-permission');
+		      //var permissions = this.findPermission(xmlDoc, 'uses-permission');
+		      var permissions = this.find_attribute_in_tag(xmlDoc, 'name', 'uses-permission');
+		      //var sharedUserId = this.find_attribute_in_tag(xmlDoc, 'sharedUserId', 'manifest');
+		      if (xmlDoc.root().attr("sharedUserId") != null){
+		      	var sharedUserId = xmlDoc.root().attr("sharedUserId").value();
+		      	console.log("id: " + sharedUserId);
+		      	this.set_sharedUserId_property(sharedUserId);
+		      }
 
 		      var t1 = function(final_callback){
 		      	that.createPerms(permissions, appPName, final_callback);
@@ -62,17 +69,34 @@ module.exports = (function()
 		      //callback && callback();
 		},
 
+		/* //no use now
 		findPermission:function(xmlDoc, tag) {
 		    	var element = xmlDoc.find('//' + tag);
 		    	var permissions = [];
 		    	for (var i = 0; i < element.length; i++) {
 		  		//console.log(element.constructor);
-		  		//console.log(element[i].attr("name").value());
+		  		//console.log("ele.attr: " + element[i].attr("name").value());
 		  		//console.log(element[i].childNodes()[1].name());
 		  		//console.log("----------");
 		  		permissions.push(element[i].attr("name").value());
 		  	}
 		  	return permissions;
+		},
+		*/
+
+		find_attribute_in_tag:function(xmlDoc, attribute, tag) {
+		    	var element = xmlDoc.find('//' + tag);
+		    	var results = [];
+		    	//console.log("ele[0]: " + element[0]);
+		    	//console.log("ele.length: " + element.length);
+		    	for (var i = 0; i < element.length; i++) {
+		  		//console.log(element.constructor);
+		  		//console.log(element[i].attr("name").value());
+		  		//console.log(element[i].childNodes()[1].name());
+		  		//console.log("----------");
+		  		results.push(element[i].attr(attribute).value());
+		  	}
+		  	return results;
 		},
 
 		findComponent:function(xmlDoc, tag, task_callback) {
@@ -282,7 +306,7 @@ module.exports = (function()
 			}
 		},		
 		
-		//* no use now
+		/* no use now
 		createComp:function(compType, compPName){
 			that = this;
 			console.log(compType);
@@ -325,7 +349,27 @@ module.exports = (function()
 				});	
 			}
 		}
+		*/
 
+		set_sharedUserId_property:function(sharedUserId, callback) {
+			var query = [
+				"MATCH (a:App {appPName: {appPName} })",
+				"SET a.sharedUserId = {sharedUserId}",
+				"RETURN a"
+			].join('\n');
+
+			var params = {
+				appPName: this.appPName,
+				sharedUserId: sharedUserId
+			};
+			console.log("appPName: " + this.appPName);
+			//console.log(permissions[i]);
+			db.query(query, params, function (err, results) {
+				if (err) throw err;
+				console.log("set sharedUserId success!");
+				callback && callback();
+			});
+		}
 	}
 	return r;
 

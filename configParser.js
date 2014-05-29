@@ -208,6 +208,32 @@ module.exports = (function()
 								inner_tasks.push(imp_Intent_tasks);
 		
 								async.parallel(inner_tasks, task_callback);
+								/*
+								async.series([
+									function(task_callback){
+										var createApp = [
+											"CREATE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}, singature: {singature}})",
+											//"CREATE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}})",
+											"RETURN n"
+										].join('\n');
+
+										var params = {
+											appName: appName,
+											appPName: appPName,
+											appType: appType, 
+											singature: singature
+										};
+
+										db.query(createApp, params, function (err, results) {
+											if (err) throw err;
+											task_callback && task_callback();
+										});
+									},
+									function(task_callback){
+										async.parallel(inner_tasks, task_callback);
+									}
+								]);
+								*/
 							}
 
 							return generateGraphOfApp;
