@@ -248,6 +248,7 @@ module.exports = (function()
 				"where \
 					(a) -[:HasPermission]-> (b) and \
 					b.permission = 'android.permission.RECEIVE_SMS' and \
+					(c) -[:BelongTo] -> (a) and \
 					all ( m in c.action where m = 'android.provider.Telephony.SMS_RECEIVED') and \
 					c.priority > 0",
 				"return a.appPName"
@@ -262,17 +263,18 @@ module.exports = (function()
 			  if (err) throw err;
 
 			  //console.log("results.length => " + results.length);
-
+			  var results_arr = [];
 			  if(results.length !== 0){
 			  	//console.log("results.length == 0");
+			  	//console.log("results: " + results);
 			  	results.map(function (result) {
 					//console.log("result['a.appPName']: " + result['a.appPName']);
 					//var intent_filter = result['intent_filter']['_data']['data'];
 					//console.log(intent.intent);
 					//console.log('===');
-					
-					callback && callback(result['a.appPName']);
+					results_arr.push(result);
 				});	
+			  	callback && callback(results_arr);
 			  } else {
 			  	callback && callback("None");
 			  }
@@ -310,7 +312,9 @@ module.exports = (function()
 					//console.log('result[a]='+result['a.appPName']);
 					//console.log('result[b]='+result['b.appPName']);
 					//callback && callback(result);
-					results_arr.push("from: " + result['a.appPName'] + " to: " + result['b.appPName']);
+
+					//results_arr.push("from: " + result['a.appPName'] + " to: " + result['b.appPName']);
+					results_arr.push(result);
 				});	
 			  	callback && callback(results_arr);
 			  } else {
@@ -350,7 +354,9 @@ module.exports = (function()
 					//console.log('result[a]='+result['a.appPName']);
 					//console.log('result[b]='+result['b.appPName']);
 					//callback && callback(result);
-					results_arr.push("sharedUserId: " + result['sharedUserId'] + " Apps: " + result['nodelist']);
+					
+					//results_arr.push("sharedUserId: " + result['sharedUserId'] + " Apps: " + result['nodelist']);
+					results_arr.push(result);
 				});	
 			  	callback && callback(results_arr);
 			  } else {

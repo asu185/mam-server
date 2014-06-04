@@ -1,17 +1,21 @@
 <% include layout %>
 
 <body>
-	<h2>Apps which can intercept SMS</h2>
+	<h2>Apps with permission spreading (Service)</h2>
 	<p>
 		<table style="width:500px">
+		<tr>
+		  <td>From</td>
+		  <td>To</td> 
+		</tr>
 		<% for(var i=0; i<results.length; i++){ %>
 		<tr>
-		  <td><%= results[i]['a.appPName'] %></td>
+		  <td><%= results[i]['a.appPName'] %></td> 
+		  <td><%= results[i]['b.appPName'] %></td>
 		</tr>
 		<% } %>
 		</table>
-	</p>
-
+	</p><br />
 
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 	<script type="text/javascript" src="test.js"></script>

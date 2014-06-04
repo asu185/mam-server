@@ -1,12 +1,17 @@
 <% include layout %>
 
 <body>
-	<h2>Apps which can intercept SMS</h2>
+	<h2>Apps with permission spreading (SharedUserId)</h2>
 	<p>
 		<table style="width:500px">
+		<tr>
+		  <td>SharedUserId</td>
+		  <td>Apps</td> 
+		</tr>
 		<% for(var i=0; i<results.length; i++){ %>
 		<tr>
-		  <td><%= results[i]['a.appPName'] %></td>
+		  <td><%= results[i]['sharedUserId'] %></td>
+		  <td><%= results[i]['nodelist'] %></td>
 		</tr>
 		<% } %>
 		</table>
