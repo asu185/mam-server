@@ -168,10 +168,20 @@ app.get('/smsInterceptList', function(req, res){
 	});
 });
 
-app.get('/permissionSpreading', function(req, res){
+app.get('/PS_Service', function(req, res){
 	dbHelper.getExternalService(function(results){
 		//console.log('result='+JSON.stringify(results));
-		res.render('permissionSpreading', {
+		res.render('PS_Service', {
+			//results: JSON.stringify("from: "+results[a.appPName] + "to: " + results[b.appPName])
+			results: results
+		});
+	});
+})
+
+app.get('/PS_SUID', function(req, res){
+	dbHelper.getSameSharedUserId(function(results){
+		//console.log('result='+JSON.stringify(results));
+		res.render('PS_SUID', {
 			//results: JSON.stringify("from: "+results[a.appPName] + "to: " + results[b.appPName])
 			results: results
 		});

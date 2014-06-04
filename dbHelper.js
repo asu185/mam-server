@@ -316,11 +316,51 @@ module.exports = (function()
 			  } else {
 			  	callback && callback("None");
 			  }
-			  
-			  
+			  			  
 			});
+		},
 
+		getSameSharedUserId:function(callback){
+			//match (n:App) where has(n.sharedUserId) with n.sharedUserId as sharedUserId, collect(n.) as nodelist return sharedUserId, nodelist
+			var query = [
+				"match (n:App)",
+				"where has(n.sharedUserId)",
+				"with n.sharedUserId as sharedUserId, collect(n.appPName) as nodelist",
+				"return sharedUserId, nodelist"
+			].join('\n');
+
+			var params = {
+				//appPName: appPName,
+				//permission: permissions[i]
+			};
+
+			db.query(query, params, function (err, results) {
+			  if (err) throw err;
+
+			  //console.log("results.length => " + results.length);
+			  var results_arr = [];
+			  if(results.length !== 0){
+			  	//console.log("results.length == 0");
+			  	results.map(function (result) {
+					//console.log("result['a.appPName']: " + result['a.appPName']);
+					//var intent_filter = result['intent_filter']['_data']['data'];
+					//console.log(intent.intent);
+					//console.log('===');
+					//console.log('result='+JSON.stringify(result));
+					//console.log('result[a]='+result['a.appPName']);
+					//console.log('result[b]='+result['b.appPName']);
+					//callback && callback(result);
+					results_arr.push("sharedUserId: " + result['sharedUserId'] + " Apps: " + result['nodelist']);
+				});	
+			  	callback && callback(results_arr);
+			  } else {
+			  	callback && callback("None");
+			  }
+			  			  
+			});
 		}
+
+
 		
 	}
 	return r;
