@@ -300,7 +300,8 @@ module.exports = (function()
 			  if (err) throw err;
 
 			  //console.log("results.length => " + results.length);
-			  var results_arr = [];
+			  //var results_arr = [];
+			  results_hash = {};
 			  if(results.length !== 0){
 			  	//console.log("results.length == 0");
 			  	results.map(function (result) {
@@ -314,9 +315,19 @@ module.exports = (function()
 					//callback && callback(result);
 
 					//results_arr.push("from: " + result['a.appPName'] + " to: " + result['b.appPName']);
-					results_arr.push(result);
+					//results_arr.push(result);
+					var from_pName = result['a.appPName'];
+					var to_pName = result['b.appPName'];
+					
+					if(results_hash[from_pName] == null){
+						results_hash[from_pName] = [];
+					}
+
+					results_hash[from_pName].push(to_pName);
 				});	
-			  	callback && callback(results_arr);
+			  	//console.log("hash: " + JSON.stringify(results_hash));
+			  	//callback && callback(results_arr);
+			  	callback && callback(results_hash);
 			  } else {
 			  	callback && callback("None");
 			  }
@@ -356,8 +367,10 @@ module.exports = (function()
 					//callback && callback(result);
 					
 					//results_arr.push("sharedUserId: " + result['sharedUserId'] + " Apps: " + result['nodelist']);
+					//console.log('result: ' + result);
 					results_arr.push(result);
 				});	
+			  	//console.log('results_arr: ' + JSON.stringify(results_arr[0]['nodelist'].length));
 			  	callback && callback(results_arr);
 			  } else {
 			  	callback && callback("None");

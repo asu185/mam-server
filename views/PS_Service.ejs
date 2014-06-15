@@ -8,12 +8,18 @@
 		  <td>From</td>
 		  <td>To</td> 
 		</tr>
-		<% for(var i=0; i<results.length; i++){ %>
+
+		<% for(var from in results_hash){ %>
 		<tr>
-		  <td><%= results[i]['a.appPName'] %></td> 
-		  <td><%= results[i]['b.appPName'] %></td>
+			<td><%= from %></td>
+			<td>
+				<% for(var i=0; i<results_hash[from].length; i++){ %>
+				<%= results_hash[from][i] %></br>
+				<% } %>	
+			</td>
 		</tr>
 		<% } %>
+
 		</table>
 	</p><br />
 

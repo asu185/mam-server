@@ -11,7 +11,11 @@
 		<% for(var i=0; i<results.length; i++){ %>
 		<tr>
 		  <td><%= results[i]['sharedUserId'] %></td>
-		  <td><%= results[i]['nodelist'] %></td>
+		  <td>
+		  	<% for(var j=0; j<results[i]['nodelist'].length; j++){ %>
+				<%= results[i]['nodelist'][j] %></br>
+			<% } %>	
+		  </td>
 		</tr>
 		<% } %>
 		</table>
