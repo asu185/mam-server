@@ -418,6 +418,7 @@ module.exports = (function()
 
 			  //console.log("results.length => " + results.length);
 			  var results_arr = [];
+			  var callbackCounter = 0;
 			  if(results.length !== 0){
 			  	//console.log("results.length == 0");
 			  	results.map(function (result) {
@@ -432,10 +433,49 @@ module.exports = (function()
 					
 					//results_arr.push("sharedUserId: " + result['sharedUserId'] + " Apps: " + result['nodelist']);
 					//console.log('result: ' + result);
-					results_arr.push(result);
+					
+					var qry = [
+						"MATCH (a:App)-[:HasPermission]->(permission)",
+						"WHERE a.appPName=" + '\'' + result['nodelist'][0] + '\'',
+						"RETURN permission"
+					].join('\n');
+
+					for(var i=1; i<result['nodelist'].length; i++){
+						qry_temp = [
+							" UNION",
+							"MATCH (a:App)-[:HasPermission]->(permission)",
+							"WHERE a.appPName=" + '\'' + result['nodelist'][i] + '\'',
+							"RETURN permission"
+						].join('\n');
+						//qry_from = qry_from + qry_to;
+						qry = qry + qry_temp;
+					}
+
+					db.query(qry, {}, function (err, inner_results) {
+						if (err) throw err;
+						//var permissionsOfApp = [];
+						result['permissions'] = [];
+						//console.log("from: " + from);
+						//console.log('inner_results: ' + JSON.stringify(inner_results));
+						inner_results.map(function (inner_result) {
+							//console.log('result: ' + JSON.stringify(result));
+							var permission = inner_result['permission']['_data']['data'];
+							//console.log(permission.permission);
+							//permissionsOfApp.push(permission.permission);
+							result['permissions'].push(permission.permission);
+						});
+						results_arr.push(result);
+
+						//console.log('result='+JSON.stringify(result));
+						callbackCounter++;
+						if(callbackCounter == results.length){
+							callback && callback(results_arr);
+						}
+					});
+					
 				});	
 			  	//console.log('results_arr: ' + JSON.stringify(results_arr[0]['nodelist'].length));
-			  	callback && callback(results_arr);
+			  	//callback && callback(results_arr);
 			  } else {
 			  	callback && callback("None");
 			  }

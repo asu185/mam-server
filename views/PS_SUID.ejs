@@ -7,14 +7,21 @@
 		<tr>
 		  <td>SharedUserId</td>
 		  <td>Apps</td> 
+		  <td>Permissions</td>
 		</tr>
+
 		<% for(var i=0; i<results.length; i++){ %>
 		<tr>
 		  <td><%= results[i]['sharedUserId'] %></td>
 		  <td>
 		  	<% for(var j=0; j<results[i]['nodelist'].length; j++){ %>
 				<%= results[i]['nodelist'][j] %></br>
-			<% } %>	
+			<% } %>
+		  </td>
+		  <td>
+			<% for(var j=0; j<results[i]['permissions'].length; j++){ %>
+				<%= results[i]['permissions'][j] %></br>
+			<% } %>
 		  </td>
 		</tr>
 		<% } %>
