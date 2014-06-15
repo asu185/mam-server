@@ -169,11 +169,13 @@ app.get('/smsInterceptList', function(req, res){
 });
 
 app.get('/PS_Service', function(req, res){
-	dbHelper.getExternalService(function(results_hash){
+	dbHelper.getExternalService(function(results_hash, permissionsMap){
 		//console.log('result='+JSON.stringify(results));
+		//console.log('permissionsMap='+JSON.stringify(permissionsMap));
 		res.render('PS_Service', {
 			//results: JSON.stringify("from: "+results[a.appPName] + "to: " + results[b.appPName])
-			results_hash: results_hash
+			results_hash: results_hash,
+			permissionsMap: permissionsMap
 		});
 	});
 })

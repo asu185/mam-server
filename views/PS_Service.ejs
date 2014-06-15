@@ -3,10 +3,11 @@
 <body>
 	<h2>Apps with permission spreading (Service)</h2>
 	<p>
-		<table style="width:500px">
+		<table style="border: hidden" rules="all" cellpadding="5" cellspacing="5">
 		<tr>
 		  <td>From</td>
 		  <td>To</td> 
+		  <td>Permissions</td>
 		</tr>
 
 		<% for(var from in results_hash){ %>
@@ -16,6 +17,15 @@
 				<% for(var i=0; i<results_hash[from].length; i++){ %>
 				<%= results_hash[from][i] %></br>
 				<% } %>	
+			</td>
+			<td>
+				<% for(var i=0; i<permissionsMap[from].length; i++){ %>
+					<% if(permissionsMap[from][i][0] == 'e'){ %>
+						<font color="red"><%= permissionsMap[from][i] %></font></br>
+					<% } else { %>
+						<%= permissionsMap[from][i] %></br>	
+					<% } %>
+				<% } %>
 			</td>
 		</tr>
 		<% } %>

@@ -301,18 +301,14 @@ module.exports = (function()
 
 			  //console.log("results.length => " + results.length);
 			  //var results_arr = [];
+			  var callbackCounter = 0;
 			  results_hash = {};
 			  if(results.length !== 0){
-			  	//console.log("results.length == 0");
+			  	//console.log("results: " + JSON.stringify(results));
 			  	results.map(function (result) {
-					//console.log("result['a.appPName']: " + result['a.appPName']);
-					//var intent_filter = result['intent_filter']['_data']['data'];
-					//console.log(intent.intent);
-					//console.log('===');
 					//console.log('result='+JSON.stringify(result));
 					//console.log('result[a]='+result['a.appPName']);
 					//console.log('result[b]='+result['b.appPName']);
-					//callback && callback(result);
 
 					//results_arr.push("from: " + result['a.appPName'] + " to: " + result['b.appPName']);
 					//results_arr.push(result);
@@ -322,12 +318,80 @@ module.exports = (function()
 					if(results_hash[from_pName] == null){
 						results_hash[from_pName] = [];
 					}
-
 					results_hash[from_pName].push(to_pName);
 				});	
-			  	//console.log("hash: " + JSON.stringify(results_hash));
-			  	//callback && callback(results_arr);
-			  	callback && callback(results_hash);
+
+			  	///*----Get permissions column----
+			  	var permissionsMap = {};
+			  	for(var from in results_hash){
+			  		//console.log("results_hash[from]: " + results_hash[from]);
+			  		//console.log("from: " + from);
+			  		var a = function(){
+			  			var from_backup = from;
+				  		var qry_from = [
+				  			"MATCH (a:App)-[:HasPermission]->(permission)",
+							"WHERE a.appPName=" + '\'' + from_backup + '\'',
+							"RETURN permission"
+						].join('\n');
+
+						db.query(qry_from, {}, function (err, results) {
+							if (err) throw err;
+							var permissionsOfApp = [];
+							//console.log("from: " + from);
+							//console.log('results: ' + JSON.stringify(results));
+							results.map(function (result) {
+								//console.log('result: ' + JSON.stringify(result));
+								var permission = result['permission']['_data']['data'];
+								//console.log(permission.permission);
+								permissionsOfApp.push(permission.permission);
+							});
+
+							var qry_to = [
+								"MATCH (a:App)-[:HasPermission]->(permission)",
+								"WHERE a.appPName=" + '\'' + results_hash[from][0] + '\'',
+								"RETURN permission"
+							].join('\n');;
+
+							for(var i=1; i<results_hash[from].length; i++){
+								qry_temp = [
+									" UNION",
+									"MATCH (a:App)-[:HasPermission]->(permission)",
+									"WHERE a.appPName=" + '\'' + results_hash[from][i] + '\'',
+									"RETURN permission"
+								].join('\n');
+								//qry_from = qry_from + qry_to;
+								qry_to = qry_to + qry_temp;
+							}
+
+							db.query(qry_to, {}, function (err, results) {
+								if (err) throw err;
+								//var permissionsOfApp = [];
+								//console.log("from: " + from);
+								//console.log('results: ' + JSON.stringify(results));
+								results.map(function (result) {
+									//console.log('result: ' + JSON.stringify(result));
+									var permission = result['permission']['_data']['data'];
+									//console.log(permission.permission);
+									permissionsOfApp.push("extra: " + permission.permission);
+								});
+								permissionsMap[from_backup] = permissionsOfApp;
+								//console.log("poa: " + permissionsOfApp);
+								//console.log("pm: " + permissionsMap);
+								//console.log("from_backup: " + from_backup);
+								//console.log("poa: " + permissionsMap[from_backup]);
+								callbackCounter++;
+								if(callbackCounter == Object.keys(results_hash).length){
+									//console.log('permissionsMap='+JSON.stringify(permissionsMap));
+									callback && callback(results_hash, permissionsMap);
+								}
+							});
+						});
+
+						
+					}();
+			  	}
+
+			  	//callback && callback(results_hash);
 			  } else {
 			  	callback && callback("None");
 			  }
