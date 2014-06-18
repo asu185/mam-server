@@ -347,6 +347,13 @@ module.exports = (function()
 							});
 
 							var qry_to = [
+								"MATCH (a:App)-[:HasPermission]->(permission), (other:App {appPName: {appPName}})",
+								"WHERE NOT (permission)<-[:HasPermission]-(other)",
+								"RETURN a.appPName, permission.permission"
+							].join('\n')
+
+							/*
+							var qry_to = [
 								"MATCH (a:App)-[:HasPermission]->(permission)",
 								"WHERE a.appPName=" + '\'' + results_hash[from][0] + '\'',
 								"RETURN permission"
@@ -362,17 +369,22 @@ module.exports = (function()
 								//qry_from = qry_from + qry_to;
 								qry_to = qry_to + qry_temp;
 							}
+							*/
 
-							db.query(qry_to, {}, function (err, results) {
+							db.query(qry_to, {appPName: from_backup}, function (err, results) {
 								if (err) throw err;
 								//var permissionsOfApp = [];
 								//console.log("from: " + from);
 								//console.log('results: ' + JSON.stringify(results));
 								results.map(function (result) {
 									//console.log('result: ' + JSON.stringify(result));
-									var permission = result['permission']['_data']['data'];
+									var permission = result['permission.permission'];
+									var to = result['a.appPName'];
+									//var permission = result['permission']['_data']['data'];
 									//console.log(permission.permission);
-									permissionsOfApp.push("extra: " + permission.permission);
+									//console.log("to: " + to);
+									//console.log("perm: " + permission);
+									permissionsOfApp.push("extra: " + permission + " (" + to + ")");
 								});
 								permissionsMap[from_backup] = permissionsOfApp;
 								//console.log("poa: " + permissionsOfApp);
@@ -437,7 +449,7 @@ module.exports = (function()
 					var qry = [
 						"MATCH (a:App)-[:HasPermission]->(permission)",
 						"WHERE a.appPName=" + '\'' + result['nodelist'][0] + '\'',
-						"RETURN permission"
+						"RETURN permission, a.appPName"
 					].join('\n');
 
 					for(var i=1; i<result['nodelist'].length; i++){
@@ -445,7 +457,7 @@ module.exports = (function()
 							" UNION",
 							"MATCH (a:App)-[:HasPermission]->(permission)",
 							"WHERE a.appPName=" + '\'' + result['nodelist'][i] + '\'',
-							"RETURN permission"
+							"RETURN permission, a.appPName"
 						].join('\n');
 						//qry_from = qry_from + qry_to;
 						qry = qry + qry_temp;
@@ -460,9 +472,10 @@ module.exports = (function()
 						inner_results.map(function (inner_result) {
 							//console.log('result: ' + JSON.stringify(result));
 							var permission = inner_result['permission']['_data']['data'];
+							var appPName = inner_result['a.appPName'];
 							//console.log(permission.permission);
 							//permissionsOfApp.push(permission.permission);
-							result['permissions'].push(permission.permission);
+							result['permissions'].push(permission.permission + " (" + appPName + ")");
 						});
 						results_arr.push(result);
 
