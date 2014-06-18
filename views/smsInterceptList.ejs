@@ -1,9 +1,9 @@
 <% include layout %>
 
 <body>
-	<h2>Apps which can intercept SMS</h2>
+	<h2 class="header">Apps which can intercept SMS</h2>
 	<p>
-		<table style="border: hidden" rules="all" cellpadding="5" cellspacing="5">
+		<table class="table" style="border: hidden" rules="all" cellpadding="5" cellspacing="5">
 		<% for(var i=0; i<results.length; i++){ %>
 		<tr>
 		  <td><%= results[i]['a.appPName'] %></td>

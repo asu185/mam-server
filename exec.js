@@ -1,6 +1,7 @@
 var express = require('express');
 //var	$ = require('jQuery');
 var	dbHelper = require('./dbHelper');
+var fs = require('fs');
 
 //dbHelper.cleanDb();
 
@@ -213,6 +214,50 @@ app.post('/cleanGraph', function(req, res){
 });
 //dbHelper.getPermission(1);
 //dbHelper.send();
+
+app.post('/upload', function(req, res) {
+	res.charset = 'utf-8';
+	res.contentType('text');
+	//console.log(req);
+    	// get the temporary location of the file
+    	
+	var tmp_path = req.files.config.path;
+	//console.log('tmp_path: ' + tmp_path);
+
+	if(req.files.config.size > 0){
+	    	//fs.mkdir('./public/' + req.session.loggedIn);
+	    	//fs.mkdir('./public/' + req.session.loggedIn);
+	    	//var target_path = './public/' + req.session.loggedIn + '/' + req.files.config.name;
+	    	var target_path = './public/' + req.files.config.name;
+	    	//module.exports.fileName = req.files.config.name;
+	    	//var target_path = './public/' + req.files.config.name;
+	    	// move the file from the temporary location to the intended location
+	    	fs.rename(tmp_path, target_path, function(err) {
+	      	if (err) throw err;
+	      	// delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
+	      	fs.unlink(tmp_path, function() {
+	      	      if (err) throw err;      	      
+	      	      //res.send(req.files);
+				//delete require.cache[require.resolve('./analyzer')]
+
+				res.write('File uploaded to: ' + target_path + ' - ' + req.files.config.size + ' bytes');
+		      	res.end('');
+
+		      	console.log(req.files);
+		      	console.log('File uploaded to: ' + target_path + ' - ' + req.files.config.size + ' bytes');
+		      	console.log('successfully deleted ' + tmp_path);
+
+		      	//res.redirect('/');
+		      	//console.log('------------------')
+		      	//console.log(req);
+	      	});
+	    	});
+	} else {
+		fs.unlink(tmp_path); //* remove empty tmp file.
+		res.end('Please chose a config xml file.');
+	}
+});
+
 
 app.listen(3001, function(){
 	console.log('\033[96m + \033[39m app listening on *:3001');
