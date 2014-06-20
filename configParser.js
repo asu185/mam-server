@@ -102,7 +102,7 @@ module.exports = (function()
 								var createExpIntent = function(expIntent, callback){
 									if(expIntent.action.length > 0 || expIntent.target != null) {	//* Check it's not empty intent
 										var	type = "Explicit";
-
+										console.log("createExpIntent start");
 										var createIntentCypher = [
 											"CREATE (n:Intent:" + type + ")",
 											//"CREATE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}})",
@@ -121,7 +121,7 @@ module.exports = (function()
 										  	var createIntentRelCypher = [
 										  		"MATCH (a:App),(b:Intent),(c:App)",
 										  		"WHERE a.appPName = b.appPName AND b.target = c.appPName",
-										  		"CREATE (a)-[r1:SendIntent]->(b)-[r2:ReceiveIntent]->(c)",
+										  		"CREATE UNIQUE (a)-[r1:SendIntent]->(b)-[r2:ReceiveIntent]->(c)",
 										  		"RETURN r1, r2"
 										  	].join('\n');
 
@@ -133,11 +133,13 @@ module.exports = (function()
 											//console.log(permissions[i]);
 											db.query(createIntentRelCypher, relParams, function (err, results) {
 												if (err) throw err;
-												console.log("createIntentRel succeed");
+												console.log("create expIntentRel succeed");
+												//console.log("expIntent: " + JSON.stringify(expIntent));
 												callback();
 											});
 										});
 									} else {
+										console.log("else");
 										callback();
 									}
 								}
@@ -194,7 +196,7 @@ module.exports = (function()
 											// All processing will now stop.
 											console.log('A file failed to process');
 										} else {
-											console.log('Explicit Intent have been processed successfully');
+											//console.log('Implicit Intent have been processed successfully');
 											final_callback();
 										}
 								      });
@@ -279,7 +281,7 @@ module.exports = (function()
 				//"CREATE (a)-[r1:SendIntent]->(b)-[r2:MatchFilter]->(c)",
 				"MATCH (a:App),(b:Implicit),(c:IntentFilter)",
 				"WHERE a.appPName = b.appPName AND all ( m in b.action where m IN c.action )",
-				"CREATE (a)-[r1:SendIntent]->(b)-[r2:MatchFilter]->(c)",
+				"CREATE UNIQUE (a)-[r1:SendIntent]->(b)-[r2:MatchFilter]->(c)",
 				"RETURN r1, r2"
 			].join('\n');
 

@@ -31,7 +31,7 @@ module.exports = (function()
 		      //var sharedUserId = this.find_attribute_in_tag(xmlDoc, 'sharedUserId', 'manifest');
 		      if (xmlDoc.root().attr("sharedUserId") != null){
 		      	var sharedUserId = xmlDoc.root().attr("sharedUserId").value();
-		      	console.log("id: " + sharedUserId);
+		      	//console.log("id: " + sharedUserId);
 		      	this.set_sharedUserId_property(sharedUserId);
 		      }
 
@@ -39,6 +39,7 @@ module.exports = (function()
 		      	that.createPerms(permissions, appPName, final_callback);
 		      }
 
+		      
 		      compNames.push('activity');
 		      compNames.push('service');
 		      compNames.push('receiver');
@@ -58,6 +59,7 @@ module.exports = (function()
 					}
 			      });
 		      }
+			
 
 		      //that.findComponent(xmlDoc, 'activity');
 		      //that.findComponent(xmlDoc, 'service');
@@ -66,33 +68,7 @@ module.exports = (function()
 		      asyncTasks.push(t1);
 		      asyncTasks.push(t2);
 		      async.parallel(asyncTasks, callback);
-		      /*
-		      async.parallel(asyncTasks, function(callback){
-		      	if (xmlDoc.root().attr("sharedUserId") != null){
-			      	var sharedUserId = xmlDoc.root().attr("sharedUserId").value();
-			      	console.log("id: " + sharedUserId);
-			      	var query = [
-						"MATCH (a:App {appPName: {appPName} })",
-						"SET a.sharedUserId = {sharedUserId}",
-						"RETURN a"
-					].join('\n');
-
-					var params = {
-						appPName: that.appPName,
-						sharedUserId: sharedUserId
-					};
-					console.log("appPName: " + that.appPName);
-					//console.log(permissions[i]);
-					db.query(query, params, function (err, results) {
-						if (err) throw err;
-						console.log("set sharedUserId success!");
-						callback && callback();
-					});
-			      } else {
-			      	callback && callback();
-			      }
-		      });
-		      */
+		      
 		      //callback && callback();
 		},
 
@@ -227,7 +203,7 @@ module.exports = (function()
 											var createIntentFilterRelCypher = [
 												"MATCH (a:App),(b:IntentFilter)",
 												"WHERE a.appPName = b.appPName",
-												"CREATE (b)-[r:BelongTo]->(a)",
+												"CREATE UNIQUE (b)-[r:BelongTo]->(a)",
 												"RETURN r"
 											].join('\n');
 											
@@ -262,7 +238,7 @@ module.exports = (function()
 		//* create Perm Nodes
 		createPerms:function(permissions, appPName, callback){
 			//var permissions = permissions.split('\n');
-	  		console.log(permissions[0]);
+	  		//console.log(permissions[0]);
 	  		//var isAllPermNodesAdded = false;
 	  		var countPermNodes=0;
 	  		if(permissions[0] != null){
@@ -309,7 +285,7 @@ module.exports = (function()
 			    	var createRelCypher = [
 					"MATCH (a:App),(b:Permission)",
 					"WHERE a.appPName = {appPName} AND b.permission = {permission}",
-					"CREATE (a)-[r:HasPermission]->(b)",
+					"CREATE UNIQUE (a)-[r:HasPermission]->(b)",
 					"RETURN r"
 			    	].join('\n');
 				//console.log(appPName);
@@ -389,11 +365,11 @@ module.exports = (function()
 				appPName: this.appPName,
 				sharedUserId: sharedUserId
 			};
-			console.log("appPName: " + this.appPName);
+			//console.log("appPName: " + this.appPName);
 			//console.log(permissions[i]);
 			db.query(query, params, function (err, results) {
 				if (err) throw err;
-				console.log("set sharedUserId success!");
+				//console.log("set sharedUserId success!");
 				callback && callback();
 			});
 		}

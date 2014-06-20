@@ -193,13 +193,27 @@ app.get('/PS_SUID', function(req, res){
 
 app.post('/generateGraph', function(req,res){
 	//dbHelper.cleanDb();
-	configParser = require("./configParser.js");
-	configParser.parseXML("config3.xml", function(){
-		configParser.createImplicitIntentRel(function(){
-			res.redirect('/');
-		});
-	});
 
+	///*----Create all permission nodes first----
+	var neo4j = require('neo4j');
+	var db = new neo4j.GraphDatabase('http://localhost:7474');
+	var createPermsCypher = [
+	  	"FOREACH (props IN [{ permission:'android.permission.RECEIVE_SMS' }, { permission:'android.permission.ACCESS_COARSE_LOCATION' }, { permission:'android.permission.INTERNET' }, { permission:'android.permission.WRITE_EXTERNAL_STORAGE' }]| ",
+      	"CREATE ( p:Permission { permission:props.permission }))"
+	].join('\n');
+
+	db.query(createPermsCypher, {}, function (err, results) {
+		if (err) throw err;
+
+		var configParser = require("./configParser.js");
+		configParser.parseXML("config3.xml", function(){
+			configParser.createImplicitIntentRel(function(){
+				res.redirect('/');
+			});
+			//res.redirect('/');
+		});
+    	});
+	
 	//setTimeout(function(){ 
 	//	configParser.createImplicitIntentRel(function(){
 	//		res.redirect('/');
