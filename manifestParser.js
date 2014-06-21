@@ -170,18 +170,21 @@ module.exports = (function()
 								            //console.log(components[value].childNodes()[j].name());
 							          	}
 							          	//console.log('t5');
-							          	var createIntentFilter = function(intentFilter, task_callback){
+							          	var createIntentFilter = function(intentFilter, task_callback){ //* Create intent filter and its "BelongTo" rel.
 								          	//console.log('createIntentFilter: ' + JSON.stringify(intentFilter));
 								          	
 										var createIntentFilterCypher = [
-											"CREATE (n:IntentFilter)",
+											"MATCH (a:App { appPName: {appPName} })",
+											"CREATE (n:IntentFilter)-[r:BelongTo]->(a)",
 											//"CREATE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}})",
 											"SET n = { props }",
-											"RETURN n"
+											//"WHERE a.appPName = {appPName}",
+											"RETURN n,r"
 										].join('\n');
 
 										var params = {
 											"props" : intentFilter,
+											"appPName" : that.appPName
 										};
 
 										db.query(createIntentFilterCypher, params, function (err, results) {
@@ -189,14 +192,15 @@ module.exports = (function()
 											//createIntentFilterRel();
 											//console.log("count = " + count);
 											//console.log("filter_count = " + filter_count);
-											count++;
-											if(count == filter_count){
+											//count++;
+											//if(count == filter_count){
 												//console.log("count = filter_count = " + count);
-												createIntentFilterRel(task_callback);
-												//task_callback();
-											}
+												//createIntentFilterRel(task_callback);
+												task_callback && task_callback();
+											//}
 										});
 
+										/*---no use now---
 										//* create IntentFilter Rel
 										function createIntentFilterRel(task_callback){
 											//console.log('createIntentFilterRel');
@@ -218,6 +222,7 @@ module.exports = (function()
 												task_callback && task_callback();
 											});	
 										}
+										*/
 									}(intentFilter, callback);
 							      }
 						      }

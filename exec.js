@@ -199,7 +199,7 @@ app.post('/generateGraph', function(req,res){
 	var db = new neo4j.GraphDatabase('http://localhost:7474');
 	var createPermsCypher = [
 	  	"FOREACH (props IN [{ permission:'android.permission.RECEIVE_SMS' }, { permission:'android.permission.ACCESS_COARSE_LOCATION' }, { permission:'android.permission.INTERNET' }, { permission:'android.permission.WRITE_EXTERNAL_STORAGE' }]| ",
-      	"CREATE ( p:Permission { permission:props.permission }))"
+      	"MERGE ( p:Permission { permission:props.permission }))"
 	].join('\n');
 
 	db.query(createPermsCypher, {}, function (err, results) {

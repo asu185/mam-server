@@ -63,7 +63,7 @@ module.exports = (function()
 							      var imp_Intent_tasks = [];
 						      	//var	expIntent = expIntentInfo,
 						      	//var impIntent = impIntentInfo[0];
-						      	//var createExpIntent = function(callback){callback()};
+						      	var createExpIntent = function(callback){callback()};
 						      	var createImpIntent = function(callback){callback()};
 						      	var manifestParser;
 						      	var parseManifest;
@@ -72,7 +72,7 @@ module.exports = (function()
 								//* create the App Node
 								createApp = function(callback){
 									var createApp = [
-										"CREATE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}, singature: {singature}})",
+										"MERGE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}, singature: {singature}})",
 										//"CREATE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}})",
 										"RETURN n"
 									].join('\n');
@@ -99,10 +99,10 @@ module.exports = (function()
 								//console.log("expInfo[0].string: " + JSON.stringify(expIntentInfo[0]));
 								//console.log("expInfo[0]: " + expIntentInfo[0]);
 																
-								var createExpIntent = function(expIntent, callback){
+								createExpIntent = function(expIntent, callback){
 									if(expIntent.action.length > 0 || expIntent.target != null) {	//* Check it's not empty intent
 										var	type = "Explicit";
-										console.log("createExpIntent start");
+										//console.log("createExpIntent start");
 										var createIntentCypher = [
 											"CREATE (n:Intent:" + type + ")",
 											//"CREATE (n:App {appName: {appName}, appPName: {appPName}, appType: {appType}})",
@@ -116,7 +116,7 @@ module.exports = (function()
 
 										db.query(createIntentCypher, params, function (err, results) {
 										  	if (err) throw err;
-										  	console.log("expIntent creation succeed");
+										  	//console.log("expIntent creation succeed");
 
 										  	var createIntentRelCypher = [
 										  		"MATCH (a:App),(b:Intent),(c:App)",
@@ -133,7 +133,7 @@ module.exports = (function()
 											//console.log(permissions[i]);
 											db.query(createIntentRelCypher, relParams, function (err, results) {
 												if (err) throw err;
-												console.log("create expIntentRel succeed");
+												//console.log("create expIntentRel succeed");
 												//console.log("expIntent: " + JSON.stringify(expIntent));
 												callback();
 											});
@@ -161,7 +161,7 @@ module.exports = (function()
 							      }
 
 								
-								var	createImpIntent = function(impIntent, callback){
+								createImpIntent = function(impIntent, callback){
 									if(impIntent.action.length > 0){
 										var	type = "Implicit";
 
@@ -178,7 +178,7 @@ module.exports = (function()
 
 										db.query(createIntentCypher, params, function (err, results) {
 										  	if (err) throw err;
-										  	console.log("impIntent creation succeed");
+										  	//console.log("impIntent creation succeed");
 										  	callback();
 										});
 									} else {
@@ -196,7 +196,7 @@ module.exports = (function()
 											// All processing will now stop.
 											console.log('A file failed to process');
 										} else {
-											//console.log('Implicit Intent have been processed successfully');
+											console.log('Implicit Intent have been processed successfully');
 											final_callback();
 										}
 								      });
