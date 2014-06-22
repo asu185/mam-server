@@ -494,8 +494,61 @@ module.exports = (function()
 			  }
 			  			  
 			});
-		}
+		},
 
+		getSystemInfo:function(callback){
+			var query = [
+				"match (n:System)",
+				//"where \
+				//	(a) -[:HasPermission]-> (b) and \
+				//	b.permission = 'android.permission.RECEIVE_SMS' and \
+				//	(c) -[:BelongTo] -> (a) and \
+				//	all ( m in c.action where m = 'android.provider.Telephony.SMS_RECEIVED') and \
+				//	c.priority > 0",
+				"return n"
+			].join('\n');
+
+			var params = {
+				//appPName: appPName,
+				//permission: permissions[i]
+			};
+
+			db.query(query, params, function (err, results) {
+			  if (err) throw err;
+
+			  //console.log("results.length => " + results.length);
+			  //console.log("results: " + JSON.stringify(results));
+			  var infos = {};
+			  var system_info = {};
+			  var wifi_info = {};
+
+			  if(results.length !== 0){
+			  	//console.log("results.length == 0");
+			  	//console.log("results: " + results);
+			  	results.map(function (result) {
+					//console.log("result: " + JSON.stringify(result['n']['_data']['data']));
+					var props = result['n']['_data']['data'];
+					//console.log(JSON.stringify(props));
+					if(props.id == 'system_info'){
+						system_info = props;
+						delete system_info.id;
+						infos['System Info'] = system_info;
+					} else if(props.id == 'wifi_info'){
+						wifi_info = props;
+						delete wifi_info.id;
+						infos['Wifi Info']= wifi_info;
+					}
+				});
+
+			  	//console.log(JSON.stringify(infos));
+			  	callback && callback(infos);
+			  } else {
+			  	callback && callback("None");
+			  }
+			  
+			  
+			});
+		}
 
 		
 	}
