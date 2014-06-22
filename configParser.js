@@ -57,9 +57,9 @@ module.exports = (function()
 				//console.log(system_info);
 
 				var create_system_info = function(callback){
-					//console.log("system_info: " + system_info);
+					console.log("system_info: " + system_info);
 					var create_system_info = [
-						"MERGE (n:System)",
+						"CREATE (n:System)",
 						"SET n = { props }",
 						"RETURN n"
 					].join('\n');
@@ -76,9 +76,9 @@ module.exports = (function()
 				};
 
 				var create_wifi_info = function(callback){
-					//console.log("wifi_info: " + wifi_info);
+					console.log("wifi_info: " + wifi_info);
 					var create_wifi_info = [
-						"MERGE (n:System)",
+						"CREATE (n:System)",
 						"SET n = { props }",
 						"RETURN n"
 					].join('\n');
@@ -309,11 +309,14 @@ module.exports = (function()
 				//console.log(that.appsInfo);
 				}
 
-				async.series([
-					function(task_callback){
-						async.parallel(system_tasks, task_callback);
-					}
-				], function(err){
+				//async.series([
+				//	function(task_callback){
+				//		async.parallel(system_tasks, task_callback);
+				//	}
+				//], function(err){
+
+				async.series(system_tasks
+				, function(err){
 					if (err) return next(err);
 					//console.log("tasks: " + tasks);
 					async.parallel(tasks, callback);	///* It's callback of parseXML

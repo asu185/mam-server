@@ -1,0 +1,27 @@
+<% include layout %>
+
+<body>
+	<h2 class="header">System Infomation</h2>
+	<p>
+		<% for(var info in infos){ %>
+			<table class="table" style="border: hidden" rules="all" cellpadding="5" cellspacing="5">
+			<tr>
+				<p><%= info %></p>
+			</tr>
+
+			<% for(var prop in infos[info]){ %>
+				<tr>
+				  <td><%= prop %></td>
+				  <td><%= infos[info][prop] %></td>
+				</tr>
+			<% } %>
+
+			</table>
+		<% } %>
+	</p>
+
+
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+	<script type="text/javascript" src="test.js"></script>
+
+</body>

@@ -17,7 +17,8 @@ app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views'); // default即為dirname + '/views'，故此行可拿掉
 app.set('view options', { layout: false });
 
-app.get('/', function(req,res){
+
+app.get('/graph', function(req,res){
 	//res.render('results');
 	//console.log(res);
 	var nodes = [];
@@ -32,7 +33,7 @@ app.get('/', function(req,res){
 		apps = dbHelper.apps;
 
 		if (apps.length == 0){
-			res.render('results', {
+			res.render('graph', {
 				nodeDataArray: nodeDataArray ,
 				linkDataArray: linkDataArray
 			});
@@ -79,7 +80,7 @@ app.get('/', function(req,res){
 						//console.log(linkDataArray);
 						//console.log("render1");
 						//console.log(linkDataArray);
-						res.render('results', {
+						res.render('graph', {
 							nodeDataArray: nodeDataArray ,
 							linkDataArray: linkDataArray
 						});
@@ -107,7 +108,7 @@ app.get('/', function(req,res){
 						//console.log(linkDataArray);
 						//console.log("render2");
 						//console.log(linkDataArray);
-						res.render('results', {
+						res.render('graph', {
 							nodeDataArray: nodeDataArray ,
 							linkDataArray: linkDataArray
 						});
@@ -117,63 +118,41 @@ app.get('/', function(req,res){
 			//console.log(linkDataArray);
 			//console.log(nodeDataArray);
 		});
-
-
-});
-
-	/*
-	dbHelper.getNodes(function(){
-		var apps = [];
-		var permissions = [];
-		var nodes = dbHelper.nodes;
-		var nodeDataArray = [];
-		//console.log(nodes);
-		
-		res.render('results', {
-			nodes: nodes ,
-		});
-
-		
-		nodes.forEach(function(node){
-			var obj = new Object();
-			for(var prop in node){
-				if(prop == 'permission') { 
-					obj.key = node[prop];
-					permissions.push(node);
-					nodeDataArray.push(obj);
-				} else if(prop == 'appPName'){
-					obj.key = node[prop];
-					apps.push(node);
-					nodeDataArray.push(obj);
-				}
-				//res.write(prop + ':' + node[prop] + '\n');
-			}
-			//console.log('---');
-		});
-		
-		//res.end('');
-		//console.log(apps);
-		
 	});
-*/
 });
 
-app.get('/smsInterceptList', function(req, res){
+
+app.get('/', function(req,res){
+	res.render('index');
+	//res.end('Welcome!');
+});
+
+app.get('/system_info', function(req, res){
+	dbHelper.getSystemInfo(function(infos){
+		//console.log('result='+JSON.stringify(infos));
+		res.render('system_info', {
+			//results: JSON.stringify("from: "+results[a.appPName] + "to: " + results[b.appPName])
+			infos: infos
+		});
+	});
+})
+
+app.get('/sms_intercept', function(req, res){
 	dbHelper.getSmsInterceptApp(function(results){
 		//console.log('results: ' + results);
 		if(results != null){
-			res.render('smsInterceptList', {
+			res.render('sms_intercept', {
 				results: results
 			});
 		}
 	});
 });
 
-app.get('/PS_Service', function(req, res){
+app.get('/ps_service', function(req, res){
 	dbHelper.getExternalService(function(results_hash, permissionsMap){
 		//console.log('result='+JSON.stringify(results));
 		//console.log('permissionsMap='+JSON.stringify(permissionsMap));
-		res.render('PS_Service', {
+		res.render('ps_service', {
 			//results: JSON.stringify("from: "+results[a.appPName] + "to: " + results[b.appPName])
 			results_hash: results_hash,
 			permissionsMap: permissionsMap
@@ -181,17 +160,17 @@ app.get('/PS_Service', function(req, res){
 	});
 })
 
-app.get('/PS_SUID', function(req, res){
+app.get('/ps_suid', function(req, res){
 	dbHelper.getSameSharedUserId(function(results){
 		//console.log('result='+JSON.stringify(results));
-		res.render('PS_SUID', {
+		res.render('ps_suid', {
 			//results: JSON.stringify("from: "+results[a.appPName] + "to: " + results[b.appPName])
 			results: results
 		});
 	});
 })
 
-app.post('/generateGraph', function(req,res){
+app.post('/generate_graph', function(req,res){
 	//dbHelper.cleanDb();
 
 	///*----Create all permission nodes first----
@@ -207,6 +186,7 @@ app.post('/generateGraph', function(req,res){
 
 		var configParser = require("./configParser.js");
 		configParser.parseXML("config4.xml", function(){
+		//configParser.parseXML("config_0621.xml", function(){
 			configParser.createImplicitIntentRel(function(){
 				res.redirect('/');
 			});
@@ -221,7 +201,7 @@ app.post('/generateGraph', function(req,res){
 	//}, 1000);
 });
 
-app.post('/cleanGraph', function(req, res){
+app.post('/clean_graph', function(req, res){
 	dbHelper.cleanDb(function(){
 		res.redirect('/');
 	});

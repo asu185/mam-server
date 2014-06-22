@@ -21,9 +21,16 @@ module.exports = (function()
 			this.filename = appPName + "_AndroidManifest.xml"
 
 			//console.log("fileName=" + this.filename);
-			//fs.readFile("hi.html", 'utf8', function(err, data) {
 
-			var data = fs.readFileSync(this.filename, 'utf8');
+			try {
+				var data = fs.readFileSync(this.filename, 'utf8');
+			} catch (e) {
+				//console.log("err");
+				callback();
+				return;
+			}
+			//console.log("test");
+			//var data = fs.readFileSync(this.filename, 'utf8');
 		      // console.log(data);
 		      var xmlDoc = libxmljs.parseXmlString(data);
 		      //var permissions = this.findPermission(xmlDoc, 'uses-permission');
