@@ -18,9 +18,88 @@ module.exports = (function()
 			fs.readFile(filename, 'utf8', function(err, data) {
 				if (err) throw err;
 				var xmlDoc = libxmljs.parseXmlString(data);
-				var apps = xmlDoc.childNodes();
-				var tasks = [];
+				
+				var device = xmlDoc.childNodes();
+				var systemInfo_tag = device[1].childNodes();
+				var apps = device[3].childNodes();
+				//var apps = xmlDoc.childNodes();
 
+				///*--- parse and store system info ---
+				var system_info = {
+					id:  "system_info"
+				};
+				var wifi_info = {
+					id: "wifi_info"
+				};
+
+				var system_tasks = [];
+				for(var i=0; i<systemInfo_tag.length; i++){
+					//console.log(systemInfo_tag[i].name());
+					if(systemInfo_tag[i].name() == 'Wifi'){
+						//var wifi_info = {};		
+						var wifi_tag = systemInfo_tag[i].childNodes();
+						for(var j=0; j < wifi_tag.length; j++) {
+							//console.log(wifi_tag[j].name());
+							if(wifi_tag[j].name() != 'text'){
+								var key = wifi_tag[j].name();
+								var value = wifi_tag[j].text();
+								wifi_info[key] = value;
+							}
+						}
+						//system_info['wifi'] = wifi_info;
+					} else if (systemInfo_tag[i].name() != 'text') {
+						var key = systemInfo_tag[i].name();
+						var value = systemInfo_tag[i].text();
+						//console.log(systemInfo_tag[i].name());
+						system_info[key] = value;
+					}
+				}
+				//console.log(system_info);
+
+				var create_system_info = function(callback){
+					//console.log("system_info: " + system_info);
+					var create_system_info = [
+						"MERGE (n:System)",
+						"SET n = { props }",
+						"RETURN n"
+					].join('\n');
+
+					var params = {
+						props: system_info
+					};
+
+					db.query(create_system_info, params, function (err, results) {
+						if (err) throw err;
+						callback && callback();
+						console.log("create_system_info");
+					});
+				};
+
+				var create_wifi_info = function(callback){
+					//console.log("wifi_info: " + wifi_info);
+					var create_wifi_info = [
+						"MERGE (n:System)",
+						"SET n = { props }",
+						"RETURN n"
+					].join('\n');
+
+					var params = {
+						props: wifi_info
+					};
+
+					db.query(create_wifi_info, params, function (err, results) {
+						if (err) throw err;
+						callback && callback();
+						console.log("create_wifi_info");
+					});
+				};
+
+				system_tasks.push(create_system_info);
+				system_tasks.push(create_wifi_info);
+				//async.parallel(system_tasks, callback);
+
+				///*--- parse and store app info ---
+				var tasks = [];
 				for(var i=0; i<apps.length; i++) {
 			      	//var appAttr = app[i]; 
 				      if(apps[i].name() != 'text'){ ///* apps[i] is xmlDoc.childNodes()[i]
@@ -139,7 +218,7 @@ module.exports = (function()
 											});
 										});
 									} else {
-										console.log("else");
+										//console.log("else");
 										callback();
 									}
 								}
@@ -230,7 +309,19 @@ module.exports = (function()
 				//console.log(that.appsInfo);
 				}
 
-				async.parallel(tasks, callback);
+				async.series([
+					function(task_callback){
+						async.parallel(system_tasks, task_callback);
+					}
+				], function(err){
+					if (err) return next(err);
+					//console.log("tasks: " + tasks);
+					async.parallel(tasks, callback);	///* It's callback of parseXML
+					//callback();
+				});
+
+				//async.parallel(system_tasks, callback);
+				//async.parallel(tasks, callback);
 
 				//* match implicit intent here
 				//that.createImplicitIntentRel();

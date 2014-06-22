@@ -206,7 +206,7 @@ app.post('/generateGraph', function(req,res){
 		if (err) throw err;
 
 		var configParser = require("./configParser.js");
-		configParser.parseXML("config3.xml", function(){
+		configParser.parseXML("config4.xml", function(){
 			configParser.createImplicitIntentRel(function(){
 				res.redirect('/');
 			});
