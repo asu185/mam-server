@@ -170,44 +170,11 @@ app.get('/ps_suid', function(req, res){
 	});
 })
 
-app.post('/generate_graph', function(req,res){
-	//dbHelper.cleanDb();
-
-	///*----Create all permission nodes first----
-	var neo4j = require('neo4j');
-	var db = new neo4j.GraphDatabase('http://localhost:7474');
-	var createPermsCypher = [
-	  	"FOREACH (props IN [{ permission:'android.permission.RECEIVE_SMS' }, { permission:'android.permission.ACCESS_COARSE_LOCATION' }, { permission:'android.permission.INTERNET' }, { permission:'android.permission.WRITE_EXTERNAL_STORAGE' }]| ",
-      	"MERGE ( p:Permission { permission:props.permission }))"
-	].join('\n');
-
-	db.query(createPermsCypher, {}, function (err, results) {
-		if (err) throw err;
-
-		var configParser = require("./configParser.js");
-		configParser.parseXML("config4.xml", function(){
-		//configParser.parseXML("config_0621.xml", function(){
-			configParser.createImplicitIntentRel(function(){
-				res.redirect('/');
-			});
-			//res.redirect('/');
-		});
-    	});
-	
-	//setTimeout(function(){ 
-	//	configParser.createImplicitIntentRel(function(){
-	//		res.redirect('/');
-	//	});
-	//}, 1000);
-});
-
 app.post('/clean_graph', function(req, res){
 	dbHelper.cleanDb(function(){
 		res.redirect('/');
 	});
 });
-//dbHelper.getPermission(1);
-//dbHelper.send();
 
 app.post('/upload', function(req, res) {
 	res.charset = 'utf-8';
@@ -234,8 +201,8 @@ app.post('/upload', function(req, res) {
 	      	      //res.send(req.files);
 				//delete require.cache[require.resolve('./analyzer')]
 
-				res.write('File uploaded to: ' + target_path + ' - ' + req.files.config.size + ' bytes');
-		      	res.end('');
+				//res.write('File uploaded to: ' + target_path + ' - ' + req.files.config.size + ' bytes');
+		      	//res.end('');
 
 		      	console.log(req.files);
 		      	console.log('File uploaded to: ' + target_path + ' - ' + req.files.config.size + ' bytes');
@@ -245,12 +212,58 @@ app.post('/upload', function(req, res) {
 		      	//console.log('------------------')
 		      	//console.log(req);
 	      	});
+
+	      	generate_graph(target_path, function(){
+	      		res.redirect('/');
+	      	});
 	    	});
 	} else {
 		fs.unlink(tmp_path); //* remove empty tmp file.
 		res.end('Please chose a config xml file.');
 	}
 });
+
+app.post('/generate_graph', function(req,res){
+	generate_graph('config4.xml', function(){
+		res.redirect('/');
+	});
+});
+
+function generate_graph(target_path, callback) {
+//app.post('/generate_graph', function(req,res){
+	//dbHelper.cleanDb();
+
+	///*----Create all permission nodes first----
+	var neo4j = require('neo4j');
+	var db = new neo4j.GraphDatabase('http://localhost:7474');
+
+	var permissions  = [
+		{ permission:'android.permission.RECEIVE_SMS' }, 
+		{ permission:'android.permission.ACCESS_COARSE_LOCATION' }, 
+		{ permission:'android.permission.INTERNET' }, 
+		{ permission:'android.permission.WRITE_EXTERNAL_STORAGE' }
+	];
+	var createPermsCypher = [
+	  	//"FOREACH (props IN [{ permission:'android.permission.RECEIVE_SMS' }, { permission:'android.permission.ACCESS_COARSE_LOCATION' }, { permission:'android.permission.INTERNET' }, { permission:'android.permission.WRITE_EXTERNAL_STORAGE' }]| ",
+	  	"FOREACH (props IN {permissions}| ",
+      	"MERGE ( p:Permission { permission:props.permission }))"
+	].join('\n');
+
+	db.query(createPermsCypher, {permissions: permissions}, function (err, results) {
+		if (err) throw err;
+
+		var configParser = require("./configParser.js");
+		configParser.parseXML(target_path, function(){
+		//configParser.parseXML("config4.xml", function(){
+		//configParser.parseXML("config_0621.xml", function(){
+			configParser.createImplicitIntentRel(function(){
+				//res.redirect('/');
+				callback && callback();
+			});
+			//res.redirect('/');
+		});
+    	});
+}
 
 
 app.listen(3001, function(){
