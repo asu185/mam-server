@@ -176,24 +176,39 @@ app.post('/clean_graph', function(req, res){
 	});
 });
 
+var count = 0;
 app.post('/upload', function(req, res) {
+	count++;
+	console.log("count = " + count);
 	res.charset = 'utf-8';
 	res.contentType('text');
+
+	console.log("uploading...");
 	//console.log(req);
-    	// get the temporary location of the file
-    	
-	var tmp_path = req.files.config.path;
+    
+    // get the temporary location of the file
+    var imei = req.body.imei;
+	var tmp_path = req.files.information.path;
 	//console.log('tmp_path: ' + tmp_path);
 
-	if(req.files.config.size > 0){
-	    	//fs.mkdir('./public/' + req.session.loggedIn);
-	    	//fs.mkdir('./public/' + req.session.loggedIn);
-	    	//var target_path = './public/' + req.session.loggedIn + '/' + req.files.config.name;
-	    	var target_path = './public/' + req.files.config.name;
-	    	//module.exports.fileName = req.files.config.name;
-	    	//var target_path = './public/' + req.files.config.name;
-	    	// move the file from the temporary location to the intended location
-	    	fs.rename(tmp_path, target_path, function(err) {
+	if(req.files.information.size > 0){
+    	var target_dir = './public/' + imei + '_folder/';
+    	//fs.mkdirSync(target_dir)
+    	if(!fs.existsSync(target_dir)){
+			fs.mkdirSync(target_dir, 0766, function(err){
+				if(err){ 
+					console.log(err);
+					response.send("ERROR! Can't make the directory! \n");    // echo the result back
+				}
+			});   
+		}
+
+    	//var target_path = './public/' + req.session.loggedIn + '/' + req.files.information.name;
+    	var target_path = target_dir + req.files.information.name;
+    	//module.exports.fileName = req.files.information.name;
+    	//var target_path = './public/' + req.files.information.name;
+    	// move the file from the temporary location to the intended location
+    	fs.rename(tmp_path, target_path, function(err) {
 	      	if (err) throw err;
 	      	// delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
 	      	fs.unlink(tmp_path, function() {
@@ -201,22 +216,29 @@ app.post('/upload', function(req, res) {
 	      	      //res.send(req.files);
 				//delete require.cache[require.resolve('./analyzer')]
 
-				//res.write('File uploaded to: ' + target_path + ' - ' + req.files.config.size + ' bytes');
+				//res.write('File uploaded to: ' + target_path + ' - ' + req.files.information.size + ' bytes');
 		      	//res.end('');
 
-		      	console.log(req.files);
-		      	console.log('File uploaded to: ' + target_path + ' - ' + req.files.config.size + ' bytes');
+		      	//console.log(req.files);
+		      	console.log('File uploaded to: ' + target_path + ' - ' + req.files.information.size + ' bytes');
 		      	console.log('successfully deleted ' + tmp_path);
 
 		      	//res.redirect('/');
 		      	//console.log('------------------')
 		      	//console.log(req);
+		      	res.end('successfully upload.');
+
 	      	});
 
-	      	generate_graph(target_path, function(){
-	      		res.redirect('/');
-	      	});
-	    	});
+	      	if(req.body.finish == "true"){ ///* true if the last file has been uploaded.
+		    	console.log("Upload finished.");
+		    	var path_to_configxml = target_dir + imei + '.xml';
+		    	//generate_graph(path_to_configxml, function(){
+		      	//	res.redirect('/');
+		      	//});
+		    }
+	      	
+    	});
 	} else {
 		fs.unlink(tmp_path); //* remove empty tmp file.
 		res.end('Please chose a config xml file.');
@@ -225,7 +247,7 @@ app.post('/upload', function(req, res) {
 
 app.post('/generate_graph', function(req,res){
 	generate_graph('config4.xml', function(){
-		res.redirect('/');
+		res.redirect('/system_info');
 	});
 });
 
