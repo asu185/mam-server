@@ -301,7 +301,7 @@ module.exports = (function()
 
 			  //console.log("results.length => " + results.length);
 			  //var results_arr = [];
-			  var callbackCounter = 0;
+			  var callbackCounter = 0; ///* count if meets key numbers of results.hash
 			  results_hash = {};
 			  if(results.length !== 0){
 			  	//console.log("results: " + JSON.stringify(results));
@@ -321,7 +321,7 @@ module.exports = (function()
 					results_hash[from_pName].push(to_pName);
 				});	
 
-			  	///*----Get permissions column----
+			  	///*----Do second query to get permissions column----
 			  	var permissionsMap = {};
 			  	for(var from in results_hash){
 			  		//console.log("results_hash[from]: " + results_hash[from]);
@@ -334,21 +334,22 @@ module.exports = (function()
 							"RETURN permission"
 						].join('\n');
 
+						///* Query to get permissions of from app
 						db.query(qry_from, {}, function (err, results) {
 							if (err) throw err;
-							var permissionsOfApp = [];
+							var permissionsOfFromApp = []; ///* This app is "from" app
 							//console.log("from: " + from);
 							//console.log('results: ' + JSON.stringify(results));
 							results.map(function (result) {
 								//console.log('result: ' + JSON.stringify(result));
 								var permission = result['permission']['_data']['data'];
 								//console.log(permission.permission);
-								permissionsOfApp.push(permission.permission);
+								permissionsOfFromApp.push(permission.permission);
 							});
 
 							var qry_to = [
 								"MATCH (a:App)-[:HasPermission]->(permission), (other:App {appPName: {appPName}})",
-								"WHERE NOT (permission)<-[:HasPermission]-(other)",
+								"WHERE a.appPName in {to_array} AND NOT (permission)<-[:HasPermission]-(other)",
 								"RETURN a.appPName, permission.permission"
 							].join('\n')
 
@@ -371,9 +372,9 @@ module.exports = (function()
 							}
 							*/
 
-							db.query(qry_to, {appPName: from_backup}, function (err, results) {
+							db.query(qry_to, {appPName: from_backup, to_array: results_hash[from_backup]}, function (err, results) {
 								if (err) throw err;
-								//var permissionsOfApp = [];
+								//var permissionsOfFromApp = [];
 								//console.log("from: " + from);
 								//console.log('results: ' + JSON.stringify(results));
 								results.map(function (result) {
@@ -384,10 +385,10 @@ module.exports = (function()
 									//console.log(permission.permission);
 									//console.log("to: " + to);
 									//console.log("perm: " + permission);
-									permissionsOfApp.push("extra: " + permission + " (" + to + ")");
+									permissionsOfFromApp.push("extra: " + permission + " (" + to + ")");
 								});
-								permissionsMap[from_backup] = permissionsOfApp;
-								//console.log("poa: " + permissionsOfApp);
+								permissionsMap[from_backup] = permissionsOfFromApp;
+								//console.log("poa: " + permissionsOfFromApp);
 								//console.log("pm: " + permissionsMap);
 								//console.log("from_backup: " + from_backup);
 								//console.log("poa: " + permissionsMap[from_backup]);
