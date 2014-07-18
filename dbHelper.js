@@ -326,6 +326,7 @@ module.exports = (function()
 			  	for(var from in results_hash){
 			  		//console.log("results_hash[from]: " + results_hash[from]);
 			  		//console.log("from: " + from);
+			  				
 			  		var a = function(){
 			  			var from_backup = from;
 				  		var qry_from = [
@@ -392,7 +393,14 @@ module.exports = (function()
 								//console.log("pm: " + permissionsMap);
 								//console.log("from_backup: " + from_backup);
 								//console.log("poa: " + permissionsMap[from_backup]);
-								callbackCounter++;
+
+								///* check if "from" send to itself(the num of "to_pName" is 1(means only itself) and this one is itself)
+								if(results_hash[from_backup].length == 1 && from == results_hash[from_backup][0]){
+						  			delete results_hash[from]; ///* 自己送給自己不會造成額外permission，故刪除
+						  		} else {
+						  			callbackCounter++;
+						  		}
+								//callbackCounter++;
 								if(callbackCounter == Object.keys(results_hash).length){
 									//console.log('permissionsMap='+JSON.stringify(permissionsMap));
 									callback && callback(results_hash, permissionsMap);
