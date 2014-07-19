@@ -10,7 +10,7 @@ module.exports = (function()
 		filename:0,
 		count:0,
 
-		parseXML:function(appPName, callback) {
+		parseXML:function(appPName, target_dir, callback) {
 			that = this;
 			var libxmljs = require("libxmljs");
 			var fs = require('fs');
@@ -18,14 +18,14 @@ module.exports = (function()
 			var compNames = [];
 
 			this.appPName = appPName;
-			this.filename = appPName + "_AndroidManifest.xml"
+			this.filename = target_dir + 'smalis/' + appPName + "/AndroidManifest.xml"
 
-			//console.log("fileName=" + this.filename);
+			console.log("fileName=" + this.filename);
 
 			try {
 				var data = fs.readFileSync(this.filename, 'utf8');
 			} catch (e) {
-				//console.log("err");
+				console.log("err" + e);
 				callback();
 				return;
 			}

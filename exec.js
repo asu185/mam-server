@@ -150,7 +150,7 @@ app.get('/sms_intercept', function(req, res){
 
 app.get('/ps_service', function(req, res){
 	dbHelper.getExternalService(function(results_hash, permissionsMap){
-		//console.log('result='+JSON.stringify(results));
+		//console.log('results_hash='+JSON.stringify(results_hash));
 		//console.log('permissionsMap='+JSON.stringify(permissionsMap));
 		res.render('ps_service', {
 			//results: JSON.stringify("from: "+results[a.appPName] + "to: " + results[b.appPName])
@@ -231,11 +231,32 @@ app.post('/upload', function(req, res) {
 	      	});
 
 	      	if(req.body.finish == "true"){ ///* true if the last file has been uploaded.
-		    	console.log("Upload finished.");
-		    	var path_to_configxml = target_dir + imei + '.xml';
-		    	//generate_graph(path_to_configxml, function(){
-		      	//	res.redirect('/');
-		      	//});
+
+		    	
+		    	console.log("Upload finished.");	
+		    	//console.log('imei = ' + imei);
+
+				//var shellSyntaxCommand = 'python readfile_explicit_intent.py ' + imei;
+				var shellSyntaxCommand = 'python readfile_explicit_intent.py 351565051501952';
+				console.log('shellSyntaxCommand = ' + shellSyntaxCommand);
+
+				var child_process = require('child_process');
+				console.log("Start to decompile...");
+				child_process.exec(shellSyntaxCommand, {cwd: './public/py_code/'}, function(err, stdout, stderr) {
+					
+					dbHelper.cleanDb(function(){
+	      				var path_to_configxml = target_dir + imei + '_config.xml';
+						console.log(stdout);
+						console.log('callback.');
+						console.log('path_to_configxml = ' + path_to_configxml);
+
+						generate_graph(target_dir, imei, function(){
+				      		//res.redirect('/');
+				      		console.log('==========finish!!!!!========');
+				      	});
+	      			});
+					
+				});
 		    }
 	      	
     	});
@@ -246,21 +267,26 @@ app.post('/upload', function(req, res) {
 });
 
 app.post('/generate_graph', function(req,res){
-	generate_graph('config4.xml', function(){
+	generate_graph('./public/351565051501952_folder/', "351565051501952",function(){
 		res.redirect('/system_info');
+		console.log('==========finish!!!!!========');
 	});
 });
 
-function generate_graph(target_path, callback) {
+function generate_graph(target_dir, imei, callback) {
 //app.post('/generate_graph', function(req,res){
 	//dbHelper.cleanDb();
-
+	console.log('==========target_dir========' + target_dir);
 	///*----Create all permission nodes first----
 	var neo4j = require('neo4j');
 	var db = new neo4j.GraphDatabase('http://localhost:7474');
 
 	var permissions  = [
 		{ permission:'android.permission.RECEIVE_SMS' }, 
+		{ permission:'android.permission.READ_PHONE_STATE' }, 
+		{ permission:'android.permission.ACCESS_WIFI_STATE' }, 
+		{ permission:'android.permission.ACCESS_NETWORK_STATE' }, 
+		{ permission:'android.permission.ACCESS_FINE_LOCATION' }, 
 		{ permission:'android.permission.ACCESS_COARSE_LOCATION' }, 
 		{ permission:'android.permission.INTERNET' }, 
 		{ permission:'android.permission.WRITE_EXTERNAL_STORAGE' }
@@ -273,9 +299,11 @@ function generate_graph(target_path, callback) {
 
 	db.query(createPermsCypher, {permissions: permissions}, function (err, results) {
 		if (err) throw err;
+		//console.log("callback");
+		//callback && callback();
 
 		var configParser = require("./configParser.js");
-		configParser.parseXML(target_path, function(){
+		configParser.parseXML(target_dir, imei, function(){
 		//configParser.parseXML("config4.xml", function(){
 		//configParser.parseXML("config_0621.xml", function(){
 			configParser.createImplicitIntentRel(function(){
@@ -284,7 +312,8 @@ function generate_graph(target_path, callback) {
 			});
 			//res.redirect('/');
 		});
-    	});
+
+    });
 }
 
 

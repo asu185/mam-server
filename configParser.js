@@ -8,14 +8,14 @@ module.exports = (function()
 	{
 		//appsInfo:[],
 
-		parseXML:function(filename, callback){
+		parseXML:function(target_dir, imei, callback){
 			//that = this;
 
 			var libxmljs = require("libxmljs");
 			var fs = require('fs');
 			//var indexer = require('./indexer');
-			
-			fs.readFile(filename, 'utf8', function(err, data) {
+			console.log("config.xml_path = " + target_dir + imei + '_config.xml');
+			fs.readFile(target_dir + imei + '_config.xml', 'utf8', function(err, data) {
 				if (err) throw err;
 				var xmlDoc = libxmljs.parseXmlString(data);
 				
@@ -171,7 +171,7 @@ module.exports = (function()
 
 								manifestParser = require("./manifestParser.js");
 								parseManifest = function(callback){
-									manifestParser.parseXML(appPName, callback);
+									manifestParser.parseXML(appPName, target_dir, callback);
 								};
 								//console.log("expInfo: " + JSON.stringify(expIntentInfo));
 								//console.log("expInfo.length: " + expIntentInfo.length);

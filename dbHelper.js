@@ -301,7 +301,7 @@ module.exports = (function()
 
 			  //console.log("results.length => " + results.length);
 			  //var results_arr = [];
-			  var callbackCounter = 0; ///* count if meets key numbers of results.hash
+			  var callbackCounter = 0; ///* count to check if meets key numbers of results.hash
 			  results_hash = {};
 			  if(results.length !== 0){
 			  	//console.log("results: " + JSON.stringify(results));
@@ -395,8 +395,8 @@ module.exports = (function()
 								//console.log("poa: " + permissionsMap[from_backup]);
 
 								///* check if "from" send to itself(the num of "to_pName" is 1(means only itself) and this one is itself)
-								if(results_hash[from_backup].length == 1 && from == results_hash[from_backup][0]){
-						  			delete results_hash[from]; ///* 自己送給自己不會造成額外permission，故刪除
+								if(results_hash[from_backup].length == 1 && from_backup == results_hash[from_backup][0]){
+						  			delete results_hash[from_backup]; ///* 自己送給自己不會造成額外permission，故刪除
 						  		} else {
 						  			callbackCounter++;
 						  		}
