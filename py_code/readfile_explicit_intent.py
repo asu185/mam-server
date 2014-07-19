@@ -24,7 +24,7 @@ def find_service_intent(file_path):
 					if "Intent;-><init>" in i:
 						while True :
 							j = f.readline()
-							if "iget-object v1, p0" in j:
+							if "iget-object v" in j and k2==0:
 								tmp = (j.split(', L',1))
 								tmp = tmp[1]
 								tmp = tmp.split(';')[0]
@@ -35,8 +35,8 @@ def find_service_intent(file_path):
 								#print('source = '+src_pkg.strip())
 								k2 = 1
 
-							if "const-string v1" in j:
-								tmp = (j.split('v1,', 2))
+							if "const-string v" in j and k1==0:
+								tmp = (j.split(', ', 2))
 								#tmp.strip()
 								dst_pkg = tmp[1]
 								dst_pkg = dst_pkg.strip()
@@ -50,9 +50,10 @@ def find_service_intent(file_path):
 							#	#print('destination = '+j.strip())
 							#	k2 = 1
 							
-							if (("startService" in j) or ("bindService" in j)):
-								k3 =1
-							if "startActivity" in j:
+							#if (("startService" in j) or ("bindService" in j) and k3==0):
+							if (("startService" in j) and k3==0):
+								k3 = 1
+							if ("startActivity" in j) or ("bindService" in j) or ("stopService" in j) or ("sendBroadcast" in j) or ("startActivityForResult" in j):
 								break
 							#if (j =='') or (k1==1 and k2==1 and k3==1): break
 							if (k1==1 and k2==1 and k3==1): 
@@ -71,7 +72,7 @@ def find_service_intent(file_path):
 def append_node(app_tag, targetType, target):
 	#print app_tag + ' ' + targetType + ' ' + target
 	print app_tag
-	print target
+	#print target
 	#print xml_root
 	app_node = xml_root.getiterator(app_tag)
 	print "****************"
@@ -135,7 +136,7 @@ if __name__ == '__main__':
 				split_name = filename.split('.')
 				final_path = '/'.join(split_name[:-2])
 				#final_path = '/'.join(split_name)
-				print "final_path = " + final_path
+				#print "final_path = " + final_path
 				find_service_intent(folder_path + "smalis/" + appPName + "/smali/" + final_path)
 
 	print "Decompile finished."

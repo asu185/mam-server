@@ -3,13 +3,17 @@
 <body>
 	<h2 class="header">Apps which can intercept SMS</h2>
 	<p>
-		<table class="table" style="border: hidden" rules="all" cellpadding="5" cellspacing="5">
-		<% for(var i=0; i<results.length; i++){ %>
-		<tr>
-		  <td><%= results[i]['a.appPName'] %></td>
-		</tr>
+		<% if (results == "None") { %>
+			<p>None</p>
+		<% } else { %>
+			<table class="table" style="border: hidden" rules="all" cellpadding="5" cellspacing="5">
+			<% for(var i=0; i<results.length; i++){ %>
+			<tr>
+			  <td><%= results[i]['a.appPName'] %></td>
+			</tr>
+			<% } %>
+			</table>
 		<% } %>
-		</table>
 	</p>
 
 

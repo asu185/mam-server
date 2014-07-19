@@ -3,20 +3,24 @@
 <body>
 	<h2 class="header">System Infomation</h2>
 	<p>
-		<% for(var info in infos){ %>
-			<table class="table" style="border: hidden" rules="all" cellpadding="5" cellspacing="5">
-			<tr>
-				<p><%= info %></p>
-			</tr>
-
-			<% for(var prop in infos[info]){ %>
+		<% if (infos == "None") { %>
+			<p>No data</p>
+		<% } else { %>
+			<% for(var info in infos){ %>
+				<table class="table" style="border: hidden" rules="all" cellpadding="5" cellspacing="5">
 				<tr>
-				  <td><%= prop %></td>
-				  <td><%= infos[info][prop] %></td>
+					<p><%= info %></p>
 				</tr>
-			<% } %>
 
-			</table>
+				<% for(var prop in infos[info]){ %>
+					<tr>
+					  <td><%= prop %></td>
+					  <td><%= infos[info][prop] %></td>
+					</tr>
+				<% } %>
+
+				</table>
+			<% } %>
 		<% } %>
 	</p>
 
