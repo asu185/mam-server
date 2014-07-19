@@ -114,16 +114,19 @@ if __name__ == '__main__':
 				#print os.path.join(root, filename)
 				#print "///////////////////" + filename
 
-				#cmd = "./apktool d ./apks/" + filename + " ../smalis/" + filename
-				apkname = filename[:-6]  #-6 to trim -x.apk
-				if(sys.platform == "win32"):
-					cmd = "apktool.bat d -f " + folder_path + filename + " " + folder_path + "smalis/" + apkname
-					#print cmd
-				else:
-					cmd = "./apktool d -f " + folder_path + filename + " " + folder_path + "smalis/" + apkname
-				
-				#print "====cmd==== " + cmd
-				os.system(cmd)
+				appPName = filename[:-6]  #-6 to trim -x.apk
+				file_smalis = folder_path + "smalis/" + appPName
+
+				if not(os.path.exists(file_smalis)): # skip decompiling if it has already decompiled before
+					#cmd = "./apktool d ./apks/" + filename + " ../smalis/" + filename					
+					if(sys.platform == "win32"):
+						cmd = "apktool.bat d -f " + folder_path + filename + " " + folder_path + "smalis/" + appPName
+						#print cmd
+					else:
+						cmd = "./apktool d -f " + folder_path + filename + " " + folder_path + "smalis/" + appPName
+					
+					#print "====cmd==== " + cmd
+					os.system(cmd)
 
 				#path = folder_path + "smalis/" + filename + "/smali/com/"
 				#print "====path==== " + path
@@ -133,7 +136,7 @@ if __name__ == '__main__':
 				final_path = '/'.join(split_name[:-2])
 				#final_path = '/'.join(split_name)
 				print "final_path = " + final_path
-				find_service_intent(folder_path + "smalis/" + apkname + "/smali/" + final_path)
+				find_service_intent(folder_path + "smalis/" + appPName + "/smali/" + final_path)
 
 	print "Decompile finished."
 
