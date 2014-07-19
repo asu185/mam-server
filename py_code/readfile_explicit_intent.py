@@ -96,7 +96,7 @@ if __name__ == '__main__':
 	folder_path = './'
 	if(len(sys.argv) > 1):
 		imei = sys.argv[1]
-		folder_path = '../' + imei + '_folder/'
+		folder_path = '../public/' + imei + '_folder/'
 		#folder_path = './public/' + imei + '_folder/'
 
 	print "====folder_path==== " + folder_path

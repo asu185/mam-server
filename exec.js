@@ -242,7 +242,7 @@ app.post('/upload', function(req, res) {
 
 				var child_process = require('child_process');
 				console.log("Start to decompile...");
-				child_process.exec(shellSyntaxCommand, {cwd: './public/py_code/'}, function(err, stdout, stderr) {
+				child_process.exec(shellSyntaxCommand, {cwd: './py_code/'}, function(err, stdout, stderr) {
 					
 					dbHelper.cleanDb(function(){
 	      				var path_to_configxml = target_dir + imei + '_config.xml';
