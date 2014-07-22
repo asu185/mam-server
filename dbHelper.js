@@ -9,6 +9,7 @@ module.exports = (function()
 		apps:[],
 		permissions:[],
 		permissionsOfApp:[],
+		intentsOfApp:{},
 		intentFiltersOfApp:[],
 
 		//* no use now
@@ -185,6 +186,41 @@ module.exports = (function()
 			  	self.permissionsOfApp.push(permission.permission);
 			  });
 			  //console.log(self.permissionsOfApp);
+
+			  callback && callback();
+			  
+			});
+		},
+
+		getIntentsOfApp:function(appPName, callback){
+			var self = this
+			var query = [
+			  //'START app=node({nodeId})',
+			  //'MATCH (app) -[:HasPermission]-> (permission)',
+			  //'RETURN permission'
+			  'MATCH (intent:Intent)',
+			  'WHERE intent.appPName = {appPName}',
+			  'RETURN id(intent) as id, intent'
+			].join('\n');
+
+			var params = {
+			  appPName: appPName
+			};
+
+			db.query(query, params, function (err, results) {
+			  if (err) throw err;
+			  self.intentsOfApp = {};
+			 
+			  results.map(function (result) {
+			  	//console.log(result);
+			  	var id = result['id'];
+			  	var intent = result['intent']['_data']['data'];
+			  	//console.log(intent.intent);
+			  	//console.log('===');
+			  	//self.intentsOfApp.push(intent);
+			  	self.intentsOfApp[id] = intent;
+			  });
+			  //console.log(self.intentFiltersOfApp);
 
 			  callback && callback();
 			  
@@ -559,7 +595,35 @@ module.exports = (function()
 			});
 		}
 
-		
+		/*
+		graphOfApp:function(appPName, callback){
+			var query = [
+			  'match (a:App {appPName: {appPName}})-[r]-b',
+			  'RETURN b'
+			].join('\n');
+
+			var params = {
+			  appPName: appPName
+			};
+
+			db.query(query, params, function (err, results) {
+			  if (err) throw err;
+			  self.intentFiltersOfApp.length = 0;
+			 
+			  results.map(function (result) {
+			  	//console.log(result);
+			  	var intent_filter = result['intent_filter']['_data']['data'];
+			  	//console.log(intent.intent);
+			  	//console.log('===');
+			  	self.intentFiltersOfApp.push(intent_filter);
+			  });
+			  //console.log(self.intentFiltersOfApp);
+
+			  callback && callback();
+			  
+			});
+		}
+		*/
 	}
 	return r;
 

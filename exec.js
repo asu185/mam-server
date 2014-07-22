@@ -26,7 +26,7 @@ app.get('/graph', function(req,res){
 	var permissions = [];
 	var nodeDataArray = [];
 	var linkDataArray = [];
-
+	var intent_flows = [];
 	
 	//dbHelper.init();
 	dbHelper.getApps(function(){
@@ -77,40 +77,54 @@ app.get('/graph', function(req,res){
 					});
 					//console.log(linkDataArray);
 					if(countPerms == apps.length && countIntents == apps.length){
-						//console.log(linkDataArray);
-						//console.log("render1");
-						//console.log(linkDataArray);
+						//console.log("nodeDataArray: " + JSON.stringify(nodeDataArray));
+						//console.log("linkDataArray: " + JSON.stringify(linkDataArray));
 						res.render('graph', {
 							nodeDataArray: nodeDataArray ,
-							linkDataArray: linkDataArray
+							linkDataArray: linkDataArray ,
+							intent_flows: intent_flows
 						});
 					}
 				});
 
-				var intentFiltersOfApp = [];
-				dbHelper.getIntentFiltersOfApp(app.appPName, function(){
+				var intentsOfApp = [];
+				dbHelper.getIntentsOfApp(app.appPName, function(){
 					//console.log("countIntents");
 					countIntents++;
-					intentFiltersOfApp = dbHelper.intentFiltersOfApp;
-					intentFiltersOfApp.forEach(function(intent){
+					intentsOfApp = dbHelper.intentsOfApp;
+					//console.log("intentsOfApp: " + JSON.stringify(intentsOfApp));
+					//intentsOfApp.forEach(function(intent){
+					for(var id in intentsOfApp){
 						var itNode = new Object();
-						itNode.key = intent.action.join() + '\n' + intent.componentType;
-						itNode.color = "lightblue";
+						//itNode.key = intent.action.join() + '\n' + intent.componentType;
+						itNode.key = id + intentsOfApp[id].targetType;
+						itNode.color = "lightgreen";
 						nodeDataArray.push(itNode);
 
-						var itRel = new Object();
-						itRel.from = intent.action.join() + '\n' +  intent.componentType;
-						itRel.to = intent.appPName;
-						linkDataArray.push(itRel);
-					});
+						var itSendRel = new Object();
+						itSendRel.from = intentsOfApp[id].appPName;
+						itSendRel.to = id + intentsOfApp[id].targetType;
+						linkDataArray.push(itSendRel);
+
+						var itRcvRel = new Object();
+						itRcvRel.from = id + intentsOfApp[id].targetType;
+						itRcvRel.to = intentsOfApp[id].target;
+						linkDataArray.push(itRcvRel);
+
+						var intent_flow = {};
+						intent_flow.from = intentsOfApp[id].appPName;
+						intent_flow.thru = intentsOfApp[id].targetType;
+						intent_flow.to = intentsOfApp[id].target;
+						intent_flows.push(intent_flow);
+					}
 
 					if(countPerms == apps.length && countIntents == apps.length){
-						//console.log(linkDataArray);
-						//console.log("render2");
-						//console.log(linkDataArray);
+						//console.log("nodeDataArray: " + JSON.stringify(nodeDataArray));
+						//console.log("linkDataArray: " + JSON.stringify(linkDataArray));
 						res.render('graph', {
 							nodeDataArray: nodeDataArray ,
-							linkDataArray: linkDataArray
+							linkDataArray: linkDataArray ,
+							intent_flows: intent_flows
 						});
 					}
 				});

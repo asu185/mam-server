@@ -18,6 +18,13 @@
 	<div id="myDiagramDiv" style="border: solid 1px blue; width:100%; height:600px">
 	</div>
 
+	<div>
+		<% JSON.stringify(intent_flows) %>
+		<% for(var i=0; i<intent_flows.length; i++) { %>
+			<%= intent_flows[i].from + ' --- ' + intent_flows[i].thru + ' ---> ' + intent_flows[i].to %></br>
+		<% } %>
+	</div>
+
 	<div id="nodeData" style="visibility:hidden">
 		<%= JSON.stringify(nodeDataArray) %>
 	</div>
