@@ -11,6 +11,7 @@ def find_service_intent(file_path):
 	k3 = 0
 	src_pkg=''
 	dst_pkg=''
+	it_type = ''
 	#for root, dirs, files in os.walk("./smalis/PS_StartServices.apk/smali/com/example/ps_services"):
 	#for root, dirs, files in os.walk("./smalis/PS_StartServices.apk/smali/com/"):
 	for root, dirs, files in os.walk(file_path):
@@ -21,9 +22,29 @@ def find_service_intent(file_path):
 				while True :
 					i = f.readline()
 
-					if "Intent;-><init>" in i:
+					if "new-instance v" in i and ", Landroid/content/Intent;" in i:
+						i = i.split(', ', 2)[0]
+						i = i.split()[1]
+						#print 'i: ' + i
+						i = i[1:]
+						n = str(int(i) + 1)
+						#print 'n: ' + n
 						while True :
 							j = f.readline()
+
+							if "const-string v" in j and k1==0:
+								tmp = (j.split(', ', 2))
+								#tmp.strip()
+								dst_pkg = tmp[1]
+								dst_pkg = dst_pkg.strip()
+								dst_pkg = dst_pkg[1:-1]
+								#print('destination = '+dst_pkg.strip())
+								k1 = 1
+
+							if "Intent;->setClassName" in j:
+								it_type = "explicit"
+								print "it_type: " + it_type
+
 							if "iget-object v" in j and k2==0:
 								tmp = (j.split(', L',1))
 								tmp = tmp[1]
@@ -34,34 +55,37 @@ def find_service_intent(file_path):
 								src_pkg = src_pkg.strip()
 								#print('source = '+src_pkg.strip())
 								k2 = 1
-
-							if "const-string v" in j and k1==0:
-								tmp = (j.split(', ', 2))
-								#tmp.strip()
-								dst_pkg = tmp[1]
-								dst_pkg = dst_pkg.strip()
-								dst_pkg = dst_pkg[1:-1]
-								#print('destination = '+dst_pkg.strip())
-								k1 = 1
-							
-							#if "const-string v2" in j:
-							#	tmp = (j.split('v2,', 2))
-							#	j = tmp[1]
-							#	#print('destination = '+j.strip())
-							#	k2 = 1
 							
 							#if (("startService" in j) or ("bindService" in j) and k3==0):
 							if (("startService" in j) and k3==0):
 								k3 = 1
-							if ("startActivity" in j) or ("bindService" in j) or ("stopService" in j) or ("sendBroadcast" in j) or ("startActivityForResult" in j):
-								break
+								send_type = "startService"
+							elif (("bindService" in j) and k3==0):
+								k3 = 1
+								send_type = "bindService"
+							elif (("startActivity" in j) and k3==0):
+								k3 = 1
+								send_type = "startActivity"
+							elif (("startActivityForResult" in j) and k3==0):
+								k3 = 1
+								send_type = "startActivityForResult"
+							elif (("sendBroadcast" in j) and k3==0):
+								k3 = 1
+								send_type = "sendBroadcast"
+
+							#if ("startActivity" in j) or ("bindService" in j) or ("stopService" in j) or ("sendBroadcast" in j) or ("startActivityForResult" in j):
+							#	break
+
 							#if (j =='') or (k1==1 and k2==1 and k3==1): break
-							if (k1==1 and k2==1 and k3==1): 
-								#print j
-								append_node(src_pkg, 'service', dst_pkg)
+							if (k1==1 and k2==1 and k3==1):
+								if it_type == "explicit":
+									#print src_pkg, send_type, dst_pkg
+									if not src_pkg == dst_pkg:
+										append_node(src_pkg, send_type, dst_pkg)
 								k1 = 0
 								k2 = 0
 								k3 = 0
+								it_type = ''
 								break
 							if (j ==''): break
 

@@ -20,7 +20,7 @@ module.exports = (function()
 			this.appPName = appPName;
 			this.filename = target_dir + 'smalis/' + appPName + "/AndroidManifest.xml"
 
-			console.log("fileName=" + this.filename);
+			//console.log("fileName=" + this.filename);
 
 			try {
 				var data = fs.readFileSync(this.filename, 'utf8');

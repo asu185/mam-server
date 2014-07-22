@@ -287,7 +287,7 @@ module.exports = (function()
 			var query = [
 				"match (a:App), (b:App), (c:Explicit)",
 				"where (a) -[:SendIntent]-> (c) -[:ReceiveIntent]-> (b) and \
-				c.targetType = 'service'",
+				c.targetType = 'startService'",
 				"return a.appPName, b.appPName"
 			].join('\n');
 
