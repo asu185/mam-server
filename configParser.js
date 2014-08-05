@@ -359,8 +359,12 @@ module.exports = (function()
 					} else if(isExplicit && intent_tag.childNodes()[j].name() == 'target'){
 						intent.target = intent_tag.childNodes()[j].text();
 					//console.log(component.childNodes()[j].name());
-					} else if(intent_tag.childNodes()[j].name() == 'targetType'){
-						intent.targetType = intent_tag.childNodes()[j].text();
+					} else if(intent_tag.childNodes()[j].name() == 'function_call_type'){
+						intent.function_call_type = intent_tag.childNodes()[j].text();
+					} else if(intent_tag.childNodes()[j].name() != 'text'){
+						name = intent_tag.childNodes()[j].name();
+						text = intent_tag.childNodes()[j].text();
+						intent[name] = text; 
 					}
 				}
 				return intent;
@@ -374,7 +378,7 @@ module.exports = (function()
 				//"WHERE a.appPName = b.appPName AND b.action IN c.action",
 				//"CREATE (a)-[r1:SendIntent]->(b)-[r2:MatchFilter]->(c)",
 				"MATCH (a:App),(b:Implicit),(c:IntentFilter)",
-				"WHERE a.appPName = b.appPName AND all ( m in b.action where m IN c.action )",
+				"WHERE a.appPName = b.appPName AND b.componentType = c.componentType AND all ( m in b.action where m IN c.action )",
 				"CREATE UNIQUE (a)-[r1:SendIntent]->(b)-[r2:MatchFilter]->(c)",
 				"RETURN r1, r2"
 			].join('\n');

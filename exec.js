@@ -26,7 +26,8 @@ app.get('/graph', function(req,res){
 	var permissions = [];
 	var nodeDataArray = [];
 	var linkDataArray = [];
-	var intent_flows = [];
+	var expIntent_flows = [];
+	var impIntent_flows = [];
 	
 	//dbHelper.init();
 	dbHelper.getApps(function(){
@@ -82,7 +83,8 @@ app.get('/graph', function(req,res){
 						res.render('graph', {
 							nodeDataArray: nodeDataArray ,
 							linkDataArray: linkDataArray ,
-							intent_flows: intent_flows
+							expIntent_flows: expIntent_flows ,
+							impIntent_flows: impIntent_flows
 						});
 					}
 				});
@@ -95,27 +97,38 @@ app.get('/graph', function(req,res){
 					//console.log("intentsOfApp: " + JSON.stringify(intentsOfApp));
 					//intentsOfApp.forEach(function(intent){
 					for(var id in intentsOfApp){
-						var itNode = new Object();
-						//itNode.key = intent.action.join() + '\n' + intent.componentType;
-						itNode.key = id + intentsOfApp[id].targetType;
-						itNode.color = "lightgreen";
-						nodeDataArray.push(itNode);
+						//console.log("target: " + intentsOfApp[id].target);
+						if(intentsOfApp[id].target != null){
+							var itNode = new Object();
+							//itNode.key = intent.action.join() + '\n' + intent.function_call_type;
+							itNode.key = id + intentsOfApp[id].function_call_type;
+							itNode.color = "lightgreen";
+							nodeDataArray.push(itNode);
 
-						var itSendRel = new Object();
-						itSendRel.from = intentsOfApp[id].appPName;
-						itSendRel.to = id + intentsOfApp[id].targetType;
-						linkDataArray.push(itSendRel);
+							var itSendRel = new Object();
+							itSendRel.from = intentsOfApp[id].appPName;
+							itSendRel.to = id + intentsOfApp[id].function_call_type;
+							linkDataArray.push(itSendRel);
 
-						var itRcvRel = new Object();
-						itRcvRel.from = id + intentsOfApp[id].targetType;
-						itRcvRel.to = intentsOfApp[id].target;
-						linkDataArray.push(itRcvRel);
+							var itRcvRel = new Object();
+							itRcvRel.from = id + intentsOfApp[id].function_call_type;
+							itRcvRel.to = intentsOfApp[id].target;
+							linkDataArray.push(itRcvRel);
 
-						var intent_flow = {};
-						intent_flow.from = intentsOfApp[id].appPName;
-						intent_flow.thru = intentsOfApp[id].targetType;
-						intent_flow.to = intentsOfApp[id].target;
-						intent_flows.push(intent_flow);
+							var exp_intent_flow = {};
+							exp_intent_flow.from = intentsOfApp[id].appPName;
+							exp_intent_flow.thru = intentsOfApp[id].function_call_type;
+							exp_intent_flow.to = intentsOfApp[id].target;
+							expIntent_flows.push(exp_intent_flow);
+						} else {
+							var imp_intent_flow = {};
+							imp_intent_flow.from = intentsOfApp[id].appPName;
+							imp_intent_flow.thru = intentsOfApp[id].function_call_type;
+							imp_intent_flow.action = intentsOfApp[id].action;
+							console.log("id: " + id);
+							console.log("action: " + imp_intent_flow.action);
+							impIntent_flows.push(imp_intent_flow);
+						}
 					}
 
 					if(countPerms == apps.length && countIntents == apps.length){
@@ -124,7 +137,7 @@ app.get('/graph', function(req,res){
 						res.render('graph', {
 							nodeDataArray: nodeDataArray ,
 							linkDataArray: linkDataArray ,
-							intent_flows: intent_flows
+							expIntent_flows: expIntent_flows
 						});
 					}
 				});

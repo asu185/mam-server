@@ -18,10 +18,19 @@
 	<div id="myDiagramDiv" style="border: solid 1px blue; width:100%; height:600px">
 	</div>
 
+	<h2>Explicit Intent Flows</h2>
 	<div>
-		<% JSON.stringify(intent_flows) %>
-		<% for(var i=0; i<intent_flows.length; i++) { %>
-			<%= intent_flows[i].from + ' --- ' + intent_flows[i].thru + ' ---> ' + intent_flows[i].to %></br>
+		<% JSON.stringify(expIntent_flows) %>
+		<% for(var i=0; i<expIntent_flows.length; i++) { %>
+			<%= expIntent_flows[i].from + ' --- ' + expIntent_flows[i].thru + ' ---> ' + expIntent_flows[i].to %></br>
+		<% } %>
+	</div>
+
+	<h2>Implicit Intent</h2>
+	<div>
+		<% JSON.stringify(impIntent_flows) %>
+		<% for(var i=0; i<impIntent_flows.length; i++) { %>
+			<%= impIntent_flows[i].from + ' --- ' + impIntent_flows[i].thru + ' ---> ' + impIntent_flows[i].action %></br>
 		<% } %>
 	</div>
 
