@@ -32,6 +32,7 @@ module.exports = (function()
 			//console.log("test");
 			//var data = fs.readFileSync(this.filename, 'utf8');
 		      // console.log(data);
+		      console.log("appP: " + appPName);
 		      var xmlDoc = libxmljs.parseXmlString(data);
 		      //var permissions = this.findPermission(xmlDoc, 'uses-permission');
 		      var permissions = this.find_attribute_in_tag(xmlDoc, 'name', 'uses-permission');
@@ -140,45 +141,45 @@ module.exports = (function()
 		 				if(components[value].childNodes().length > 1){ //if intent-fileter exists
 		 					//console.log('t1');
 
-						      for (var i = 0; i < components[value].childNodes().length; i++) { //for each intent-filter
+						    for (var i = 0; i < components[value].childNodes().length; i++) { //for each intent-filter
 						      	//console.log('t2');
 						      	if(components[value].childNodes()[i].name() != 'text'){
 						      		filter_count++;
 						      		//console.log('t3');
-							        	//console.log(components[value].name());
-							        	//console.log(components[value].constructor);
-							        	var intentFilter = {};
-							        	intentFilter.appPName = that.appPName;
-							        	//console.log(that.appPName);
-							        	intentFilter.permissionAttr = permissionAttr;
-							        	intentFilter.componentType = components[value].name();
-							        	intentFilter.action = [];
-							        	intentFilter.category = [];
-							        	intentFilter.data = [];
-							        	var intent_filter_tag = components[value].childNodes()[i];
-							          	//console.log("pri: " + intent_filter_tag.attr("priority"));
-							          	if(intent_filter_tag.attr("priority") != null){
-							          		intentFilter.priority = parseInt(intent_filter_tag.attr("priority").value(), 10);
-							          	}
+						        	//console.log(components[value].name());
+						        	//console.log(components[value].constructor);
+						        	var intentFilter = {};
+						        	intentFilter.appPName = that.appPName;
+						        	console.log(that.appPName);
+						        	intentFilter.permissionAttr = permissionAttr;
+						        	intentFilter.componentType = components[value].name();
+						        	intentFilter.action = [];
+						        	intentFilter.category = [];
+						        	intentFilter.data = [];
+						        	var intent_filter_tag = components[value].childNodes()[i];
+						          	//console.log("pri: " + intent_filter_tag.attr("priority"));
+						          	if(intent_filter_tag.attr("priority") != null){
+						          		intentFilter.priority = parseInt(intent_filter_tag.attr("priority").value(), 10);
+						          	}
 
-							          	for (var j = 0; j < intent_filter_tag.childNodes().length; j++){
-							          		//console.log('t4');
-								            //if(intent_filter_tag.childNodes()[j].name() != 'text'){
-								            if(intent_filter_tag.childNodes()[j].name() == 'action') {
-								            	intentFilter.action.push(intent_filter_tag.childNodes()[j].attr("name").value());
-								              	//console.log("action: " + intent_filter_tag.childNodes()[j].attr("name").value());
-								            } else if(intent_filter_tag.childNodes()[j].name() == 'category'){
-								            	intentFilter.category.push(intent_filter_tag.childNodes()[j].attr("name").value());
-								              	//console.log("category: " + intent_filter_tag.childNodes()[j].attr("name").value());
-								            } else if(intent_filter_tag.childNodes()[j].name() == 'data'){
-								            	intentFilter.data.push(intent_filter_tag.childNodes()[j].attr("name").value());
-								             	//console.log("data: " + intent_filter_tag.childNodes()[j].attr("name").value());
-								            }
-								            //console.log(components[value].childNodes()[j].name());
-							          	}
-							          	//console.log('t5');
-							          	var createIntentFilter = function(intentFilter, task_callback){ //* Create intent filter and its "BelongTo" rel.
-								          	//console.log('createIntentFilter: ' + JSON.stringify(intentFilter));
+						          	for (var j = 0; j < intent_filter_tag.childNodes().length; j++){
+						          		//console.log('t4');
+							            //if(intent_filter_tag.childNodes()[j].name() != 'text'){
+							            if(intent_filter_tag.childNodes()[j].name() == 'action') {
+							            	intentFilter.action.push(intent_filter_tag.childNodes()[j].attr("name").value());
+							              	//console.log("action: " + intent_filter_tag.childNodes()[j].attr("name").value());
+							            } else if(intent_filter_tag.childNodes()[j].name() == 'category'){
+							            	intentFilter.category.push(intent_filter_tag.childNodes()[j].attr("name").value());
+							              	//console.log("category: " + intent_filter_tag.childNodes()[j].attr("name").value());
+							            //} else if(intent_filter_tag.childNodes()[j].name() == 'data'){
+							            	//intentFilter.data.push(intent_filter_tag.childNodes()[j].attr("name").value());
+							             	//console.log("data: " + intent_filter_tag.childNodes()[j].attr("name").value());
+							            }
+							            //console.log(components[value].childNodes()[j].name());
+						          	}
+						          	//console.log('t5');
+						          	var createIntentFilter = function(intentFilter, task_callback){ //* Create intent filter and its "BelongTo" rel.
+							          	//console.log('createIntentFilter: ' + JSON.stringify(intentFilter));
 								          	
 										var createIntentFilterCypher = [
 											"MATCH (a:App { appPName: {appPName} })",
@@ -199,12 +200,12 @@ module.exports = (function()
 											//createIntentFilterRel();
 											//console.log("count = " + count);
 											//console.log("filter_count = " + filter_count);
-											//count++;
-											//if(count == filter_count){
+											count++;
+											if(count == filter_count){
 												//console.log("count = filter_count = " + count);
 												//createIntentFilterRel(task_callback);
 												task_callback && task_callback();
-											//}
+											}
 										});
 
 										/*---no use now---
@@ -231,11 +232,11 @@ module.exports = (function()
 										}
 										*/
 									}(intentFilter, callback);
-							      }
-						      }
-					    	} else {
-					    		callback();
-					    	}
+							    }
+						    }
+					    } else {
+					    	callback();
+					    }
 		 			};
 		 			return findIntentFilter;
 		 		}();

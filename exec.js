@@ -125,8 +125,8 @@ app.get('/graph', function(req,res){
 							imp_intent_flow.from = intentsOfApp[id].appPName;
 							imp_intent_flow.thru = intentsOfApp[id].function_call_type;
 							imp_intent_flow.action = intentsOfApp[id].action;
-							console.log("id: " + id);
-							console.log("action: " + imp_intent_flow.action);
+							//console.log("id: " + id);
+							//console.log("action: " + imp_intent_flow.action);
 							impIntent_flows.push(imp_intent_flow);
 						}
 					}
@@ -263,8 +263,8 @@ app.post('/upload', function(req, res) {
 		    	console.log("Upload finished.");	
 		    	//console.log('imei = ' + imei);
 
-				//var shellSyntaxCommand = 'python readfile_explicit_intent.py ' + imei;
-				var shellSyntaxCommand = 'python readfile_explicit_intent.py 351565051501952';
+				var shellSyntaxCommand = 'python readfile_explicit_intent.py ' + imei;
+				//var shellSyntaxCommand = 'python readfile_explicit_intent.py 351565051501952';
 				console.log('shellSyntaxCommand = ' + shellSyntaxCommand);
 
 				var child_process = require('child_process');
@@ -294,7 +294,8 @@ app.post('/upload', function(req, res) {
 });
 
 app.post('/generate_graph', function(req,res){
-	generate_graph('./public/351565051501952_folder/', "351565051501952",function(){
+	//generate_graph('./public/351565051501952_folder/', "351565051501952",function(){
+	generate_graph('./public/860955028172850_folder/', "860955028172850",function(){
 		res.redirect('/system_info');
 		console.log('==========finish!!!!!========');
 	});
@@ -316,6 +317,7 @@ function generate_graph(target_dir, imei, callback) {
 		{ permission:'android.permission.ACCESS_FINE_LOCATION' }, 
 		{ permission:'android.permission.ACCESS_COARSE_LOCATION' }, 
 		{ permission:'android.permission.INTERNET' }, 
+		{ permission:'android.permission.WAKE_LOCK' }, 
 		{ permission:'android.permission.WRITE_EXTERNAL_STORAGE' }
 	];
 	var createPermsCypher = [

@@ -20,97 +20,105 @@ def find_intent(file_path, appPName):
 		for q in files:
 			if '.smali' in q:
 				joined_path = os.path.join(root, q)
-				f = open(joined_path , 'r')
-				while True :
-					line = f.readline()
+				try:
+					f = open(joined_path , 'r')
+					#print "joined_path: " + joined_path
+					while True :
+						line = f.readline()
 
-					if "new-instance v" in line and ", Landroid/content/Intent;" in line:
-						#print 'line: ' + line
-						tmp = line.split(', ', 2)
-						n = tmp[0].split()[1]
-						#v[n] = tmp[1]
+						if "new-instance v" in line and ", Landroid/content/Intent;" in line:
+							#print 'line: ' + line
+							tmp = line.split(', ', 2)
+							n = tmp[0].split()[1]
+							#v[n] = tmp[1]
 
-						#line = line[1:]
-						#n = str(int(line) + 1)
-						#print 'n: ' + n + ' v[n]: ' + v[n]
-						while True :
-							j = f.readline()
+							#line = line[1:]
+							#n = str(int(line) + 1)
+							#print 'n: ' + n + ' v[n]: ' + v[n]
+							while True :
+								j = f.readline()
 
-							if "const-class v" in j:
-								is_inter_app_intent = False
+								if "const-class v" in j:
+									is_inter_app_intent = False
 
-							if "const-string v" in j and k1==0:
-								tmp = (j.split(', ', 2))
-								n = tmp[0].split()[1]
-								tmp = tmp[1].strip()
-								v[n] = tmp[1:-1]
-								k1 = 1
+								if "const-string v" in j and k1==0:
+									tmp = (j.split(', ', 2))
+									n = tmp[0].split()[1]
+									tmp = tmp[1].strip()
+									v[n] = tmp[1:-1]
+									k1 = 1
 
-							if "Intent;->setClassName" in j:
-								it_type = "explicit"
-								n = j.split(', ', 2)[1]
-								dst_pkg = v[n]
-								#print dst_pkg
-								#print "it_type: " + it_type
+								if "Intent;->setClassName" in j:
+									it_type = "explicit"
+									n = j.split(', ', 2)[1]
+									if n in v:
+										dst_pkg = v[n]
+									else:
+										is_inter_app_intent = False
+									#print dst_pkg
+									#print "it_type: " + it_type
 
-							if "iget-object v" in j and k2==0:
-								tmp = (j.split(', L',1))[1]
-								tmp = tmp.split(';')[0]
-								tmp = tmp.split('/')
-								tmp.pop()
-								src_pkg = '.'.join(tmp)
-								src_pkg = src_pkg.strip()
-								#print('source = '+src_pkg.strip())
-								k2 = 1
-							
-							#if (("startService" in j) or ("bindService" in j) and k3==0):
-							if (("startService" in j) and k3==0):
-								k3 = 1
-								componentType = "service"
-								function_call_type = "startService"
-							elif (("bindService" in j) and k3==0):
-								k3 = 1
-								componentType = "service"
-								function_call_type = "bindService"
-							elif (("startActivity" in j) and k3==0):
-								k3 = 1
-								componentType = "activity"
-								function_call_type = "startActivity"
-							elif (("startActivityForResult" in j) and k3==0):
-								k3 = 1
-								componentType = "activity"
-								function_call_type = "startActivityForResult"
-							elif (("sendBroadcast" in j) and k3==0):
-								k3 = 1
-								componentType = "broadcast"
-								function_call_type = "sendBroadcast"
+								if "iget-object v" in j and k2==0:
+									tmp = (j.split(', L',1))[1]
+									tmp = tmp.split(';')[0]
+									tmp = tmp.split('/')
+									tmp.pop()
+									src_pkg = '.'.join(tmp)
+									src_pkg = src_pkg.strip()
+									#print('source = '+src_pkg.strip())
+									k2 = 1
+								
+								#if (("startService" in j) or ("bindService" in j) and k3==0):
+								if (("startService" in j) and k3==0):
+									k3 = 1
+									componentType = "service"
+									function_call_type = "startService"
+								elif (("bindService" in j) and k3==0):
+									k3 = 1
+									componentType = "service"
+									function_call_type = "bindService"
+								elif (("startActivity" in j) and k3==0):
+									k3 = 1
+									componentType = "activity"
+									function_call_type = "startActivity"
+								elif (("startActivityForResult" in j) and k3==0):
+									k3 = 1
+									componentType = "activity"
+									function_call_type = "startActivityForResult"
+								elif (("sendBroadcast" in j) and k3==0):
+									k3 = 1
+									componentType = "broadcast"
+									function_call_type = "sendBroadcast"
 
-							#if ("startActivity" in j) or ("bindService" in j) or ("stopService" in j) or ("sendBroadcast" in j) or ("startActivityForResult" in j):
-							#	break
+								#if ("startActivity" in j) or ("bindService" in j) or ("stopService" in j) or ("sendBroadcast" in j) or ("startActivityForResult" in j):
+								#	break
 
-							#if (j =='') or (k1==1 and k2==1 and k3==1): break
-							if (k1==1 and k2==1 and k3==1):
-								if it_type == "explicit":
-									#print 'explicit'
-									#print src_pkg, function_call_type, dst_pkg
-									if not src_pkg == dst_pkg:
-										append_exp_intent(appPName, function_call_type, dst_pkg, componentType)
-								elif is_inter_app_intent:
-									#print 'implicit ' + function_call_type + ' v: ' + str(v)
-									print joined_path
-									#print src_pkg
-									append_imp_intent(appPName, function_call_type, v, componentType)
-								k1 = 0
-								k2 = 0
-								k3 = 0
-								it_type = ''
-								v = {}
-								break
-							if (j ==''): break
+								#if (j =='') or (k1==1 and k2==1 and k3==1): break
+								if (k1==1 and k2==1 and k3==1):
+									if it_type == "explicit":
+										#print 'explicit'
+										#print src_pkg, function_call_type, dst_pkg
+										if not src_pkg == dst_pkg:
+											append_exp_intent(appPName, function_call_type, dst_pkg, componentType)
+									elif is_inter_app_intent:
+										#print 'implicit ' + function_call_type + ' v: ' + str(v)
+										print joined_path
+										#print src_pkg
+										#append_imp_intent(appPName, function_call_type, v, componentType)
+									k1 = 0
+									k2 = 0
+									k3 = 0
+									it_type = ''
+									v = {}
+									break
+								if (j ==''): break
 
-					if line=='': break
+						if line=='': break
 
-				f.close()   
+					f.close()
+
+				except IOError:
+					pass
 
 def append_exp_intent(app_tag, function_call_type, target, componentType):
 	#print app_tag + ' ' + function_call_type + ' ' + target
@@ -186,7 +194,7 @@ if __name__ == '__main__':
 		for filename in files:
 			if '.apk' in filename:
 				#print os.path.join(root, filename)
-				#print "///////////////////" + filename
+				print "///////////////////" + filename
 
 				appPName = filename[:-6]  #-6 to trim -x.apk
 				file_smalis = folder_path + "smalis/" + appPName
@@ -209,7 +217,8 @@ if __name__ == '__main__':
 				split_name = filename.split('.')
 				final_path = '/'.join(split_name[:-2])
 				#final_path = '/'.join(split_name)
-				#print "final_path = " + final_path
+				#print "split_name = " + str(split_name)
+				#print "final_path = " + str(final_path)
 
 				find_intent(folder_path + "smalis/" + appPName + "/smali/" + final_path, appPName)
 
