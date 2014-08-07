@@ -3,9 +3,11 @@ $(document).ready(function(){
 	//$("node").draggable();
 	var nodeData = document.getElementById('nodeData').innerHTML;
 	var linkData = document.getElementById('linkData').innerHTML;
-	var nodeDataArray = JSON.parse(nodeData);
-	var linkDataArray = JSON.parse(linkData);
-
+	//var nodeDataArray = JSON.parse(nodeData);
+	//var linkDataArray = JSON.parse(linkData);
+	var nodeDataArray = [];
+	var linkDataArray = [];
+	
 	var diagram = new go.Diagram("myDiagramDiv");
 	diagram.nodeTemplate =
       go.GraphObject.make(go.Node, "Auto",

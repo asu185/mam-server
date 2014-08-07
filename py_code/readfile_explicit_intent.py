@@ -6,14 +6,15 @@ def find_intent(file_path, appPName):
 	#print "find_intent: " + file_path
 	print "========================================="
 
-	k1 = 0
-	k2 = 0
-	k3 = 0
-	is_inter_app_intent = True
-	src_pkg='' # not real src_pkg, no use now
-	dst_pkg=''
-	it_type = ''
-	v = {}
+	#k1 = 0
+	#k2 = 0
+	#k3 = 0
+	#is_inter_app_intent = True
+	#src_pkg='' # not real src_pkg, no use now
+	#dst_pkg=''
+	#it_type = ''
+	#v = {}
+
 	#for root, dirs, files in os.walk("./smalis/PS_StartServices.apk/smali/com/example/ps_services"):
 	#for root, dirs, files in os.walk("./smalis/PS_StartServices.apk/smali/com/"):
 	for root, dirs, files in os.walk(file_path):
@@ -25,6 +26,15 @@ def find_intent(file_path, appPName):
 					#print "joined_path: " + joined_path
 					while True :
 						line = f.readline()
+
+						k1 = 0
+						k2 = 0
+						k3 = 0
+						it_type = ''
+						v = {}
+						is_inter_app_intent = True
+						src_pkg=''
+						dst_pkg=''
 
 						if "new-instance v" in line and ", Landroid/content/Intent;" in line:
 							#print 'line: ' + line
@@ -38,6 +48,11 @@ def find_intent(file_path, appPName):
 							while True :
 								j = f.readline()
 
+								if "move-result-" in j:
+									n = j.split()[1]
+									if n in v:
+										is_inter_app_intent = False
+
 								if "const-class v" in j:
 									is_inter_app_intent = False
 
@@ -46,13 +61,17 @@ def find_intent(file_path, appPName):
 									n = tmp[0].split()[1]
 									tmp = tmp[1].strip()
 									v[n] = tmp[1:-1]
-									k1 = 1
+									#k1 = 1
 
 								if "Intent;->setClassName" in j:
 									it_type = "explicit"
+									#print j
+									#print 'setClassName: ' + joined_path
 									n = j.split(', ', 2)[1]
 									if n in v:
 										dst_pkg = v[n]
+										#print n
+										#print dst_pkg
 									else:
 										is_inter_app_intent = False
 									#print dst_pkg
@@ -94,22 +113,30 @@ def find_intent(file_path, appPName):
 								#	break
 
 								#if (j =='') or (k1==1 and k2==1 and k3==1): break
-								if (k1==1 and k2==1 and k3==1):
+								#if (k1==1 and k2==1 and k3==1):
+								#if (k2==1 and k3==1):
+								if (k3==1):
 									if it_type == "explicit":
 										#print 'explicit'
 										#print src_pkg, function_call_type, dst_pkg
+										#print joined_path
 										if not src_pkg == dst_pkg:
-											append_exp_intent(appPName, function_call_type, dst_pkg, componentType)
-									elif is_inter_app_intent:
+										#if src_pkg != dst_pkg:
+											if is_inter_app_intent:
+												#print ' '
+												print "append: " + joined_path
+												append_exp_intent(appPName, function_call_type, dst_pkg, componentType)
+									#elif is_inter_app_intent:
 										#print 'implicit ' + function_call_type + ' v: ' + str(v)
-										print joined_path
+										#print joined_path
 										#print src_pkg
 										#append_imp_intent(appPName, function_call_type, v, componentType)
-									k1 = 0
-									k2 = 0
-									k3 = 0
-									it_type = ''
-									v = {}
+									#k1 = 0
+									#k2 = 0
+									#k3 = 0
+									#it_type = ''
+									#v = {}
+									#is_inter_app_intent = True
 									break
 								if (j ==''): break
 
@@ -188,7 +215,7 @@ if __name__ == '__main__':
 
 	#append_exp_intent("com.saigmn", "type", "tgt")
 	#print ET.tostring(applist)
-
+	
 	#for root, dirs, files in os.walk("./apks/"):
 	for root, dirs, files in os.walk(folder_path):
 		for filename in files:
@@ -223,19 +250,19 @@ if __name__ == '__main__':
 				find_intent(folder_path + "smalis/" + appPName + "/smali/" + final_path, appPName)
 
 	print "Decompile finished."
-
+	
 	'''
 	#filename = "com.example.test1"
-	filename = "com.hyonga.snu.lang.edu.lab"
+	filename = "flipboard.app"
 	split_name = filename.split('.')
 	final_path = '/'.join(split_name[:-2])
 	#print final_path
 	find_intent(folder_path + "smalis/" + filename + "/smali/" + final_path, filename)
 	#find_intent("./smalis/PS_BindMalware.apk/smali/com/")
-	'''
+	
 	#print ET.tostring(xml_root)
 	#os.unlink(folder_path + imei + '_config.xml');
-	
+	'''
 	try:
 	    # This will create a new file or **overwrite an existing file**.
 	    f = open(folder_path + imei + '_config.xml', "w+")

@@ -233,7 +233,7 @@ module.exports = (function()
 											// All processing will now stop.
 											console.log('A file failed to process');
 										} else {
-											console.log('Explicit Intent have been processed successfully');
+											//console.log('Explicit Intent have been processed successfully');
 											final_callback();
 										}
 								      });
@@ -275,7 +275,7 @@ module.exports = (function()
 											// All processing will now stop.
 											console.log('A file failed to process');
 										} else {
-											console.log('Implicit Intent have been processed successfully');
+											//console.log('Implicit Intent have been processed successfully');
 											final_callback();
 										}
 								      });
@@ -284,18 +284,19 @@ module.exports = (function()
 								//inner_tasks.push(createApp);
 								inner_tasks.push(parseManifest);
 								inner_tasks.push(exp_Intent_tasks);
-								inner_tasks.push(imp_Intent_tasks);
+								//inner_tasks.push(imp_Intent_tasks);
 		
 								//async.parallel(inner_tasks, task_callback);
 								
 								async.series([
 									createApp,
 									function(callback){
-										async.parallel(inner_tasks, callback);
+										async.series(inner_tasks, callback); //*Change to series
 									}
 								], function(err){
 									if (err) return next(err);
 									task_callback();
+									console.log("===App: " + appPName + " finished.===")
 								});
 								
 							}
@@ -319,7 +320,8 @@ module.exports = (function()
 				, function(err){
 					if (err) return next(err);
 					//console.log("tasks: " + tasks);
-					async.parallel(tasks, callback);	///* It's callback of parseXML
+					//async.parallel(tasks, callback);	///* It's callback of parseXML
+					async.series(tasks, callback);	///* It's callback of parseXML
 					//callback();
 				});
 

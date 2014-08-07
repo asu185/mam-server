@@ -32,7 +32,7 @@ module.exports = (function()
 			//console.log("test");
 			//var data = fs.readFileSync(this.filename, 'utf8');
 		      // console.log(data);
-		      console.log("appP: " + appPName);
+		      //console.log("appP: " + appPName);
 		      var xmlDoc = libxmljs.parseXmlString(data);
 		      //var permissions = this.findPermission(xmlDoc, 'uses-permission');
 		      var permissions = this.find_attribute_in_tag(xmlDoc, 'name', 'uses-permission');
@@ -62,7 +62,7 @@ module.exports = (function()
 						// All processing will now stop.
 						console.log('A file failed to process');
 					} else {
-						console.log('All files have been processed successfully');
+						//console.log(appPName + ' files have been processed successfully');
 						final_callback();
 					}
 			      });
@@ -75,7 +75,7 @@ module.exports = (function()
 
 		      asyncTasks.push(t1);
 		      asyncTasks.push(t2);
-		      async.parallel(asyncTasks, callback);
+		      async.series(asyncTasks, callback); //*Change to series
 		      
 		      //callback && callback();
 		},
@@ -150,7 +150,7 @@ module.exports = (function()
 						        	//console.log(components[value].constructor);
 						        	var intentFilter = {};
 						        	intentFilter.appPName = that.appPName;
-						        	console.log(that.appPName);
+						        	//console.log(that.appPName);
 						        	intentFilter.permissionAttr = permissionAttr;
 						        	intentFilter.componentType = components[value].name();
 						        	intentFilter.action = [];
@@ -159,7 +159,13 @@ module.exports = (function()
 						        	var intent_filter_tag = components[value].childNodes()[i];
 						          	//console.log("pri: " + intent_filter_tag.attr("priority"));
 						          	if(intent_filter_tag.attr("priority") != null){
-						          		intentFilter.priority = parseInt(intent_filter_tag.attr("priority").value(), 10);
+						          		var priority_str = intent_filter_tag.attr("priority").value();
+						          		if (priority_str[0] == '0' && priority_str[1] == 'x'){
+						          			intentFilter.priority = parseInt(priority_str, 16);
+						          		} else {
+						          			intentFilter.priority = parseInt(priority_str, 10);	
+						          		}
+						          		console.log('priority: ' + intentFilter.priority);
 						          	}
 
 						          	for (var j = 0; j < intent_filter_tag.childNodes().length; j++){
@@ -245,7 +251,7 @@ module.exports = (function()
 		 		//console.log("----------");
 		 		//task_callback && task_callback();
 		 	}
-		 	async.parallel(tasks, task_callback);
+		 	async.series(tasks, task_callback); //*Change to series
 		},
 
 		//* create Perm Nodes
